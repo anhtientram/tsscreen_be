@@ -1,11 +1,8 @@
 # Legacy API contract
 
 ```php
-// GOOD
-return response(json_encode($payload), 200, ['Content-Type' => 'text/html; charset=utf-8']);
-
-// BAD — app crash
-return response()->json($payload);
+return LegacyJson::send($payload);
+// App: text/html JSON string. Swagger Try it out: application/json pretty.
 ```
 
 List keys không thống nhất — copy đúng app:
@@ -21,3 +18,5 @@ Password:
 Admin `user_type`: `"1"` Super, `"2"` Admin, `"3"` Member.
 Customer status API: `"y"` bật, `"n"` tắt.
 Order `pay`: `"0"` mới, `"1"` đã active.
+
+Swagger tag theo 3 app: `Customer (Phone)`, `Projector (TV)`, `Admin` (`App\OpenApi\AppTags`). Endpoint dùng chung gắn đủ tag.

@@ -1,0 +1,1194 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "TS Screen Legacy API",
+        "description": "Compatible with 3 Flutter apps. Swagger grouped by app: Customer (Phone), Projector (TV), Admin. Shared routes appear in every app that calls them. App receives JSON string (text/html). Swagger Try it out receives application/json. status=1 success, -2 show msg, -1 OTP error.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Current host"
+        }
+    ],
+    "paths": {
+        "/config6789.php": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)",
+                    "Admin"
+                ],
+                "summary": "Bootstrap — 3 app đọc API_SERVER",
+                "operationId": "3e37945f529c853d9ac5cd0d4d893742",
+                "responses": {
+                    "200": {
+                        "description": "JSON: COMPANY_*, API_SERVER, version fields for phone/TV/admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "API_SERVER": {
+                                            "type": "string",
+                                            "example": "http://localhost:8000"
+                                        },
+                                        "COMPANY_NAME": {
+                                            "type": "string"
+                                        },
+                                        "show_payment": {
+                                            "type": "string",
+                                            "example": "1"
+                                        },
+                                        "ACTIVE_FLAG": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/home/GetListCustomer": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Khách đang hoạt động",
+                "operationId": "fd69a91f15276cf9dccf7e77cc41adef",
+                "responses": {
+                    "200": {
+                        "description": "{list}"
+                    }
+                }
+            }
+        },
+        "/home/GetListCustomer_Delete": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Khách vô hiệu / đã xóa",
+                "operationId": "44a2127ec42ac5712abb8a4b255a04c7",
+                "responses": {
+                    "200": {
+                        "description": "{list}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/UpdateStatusCustomer": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Bật/tắt khách (toggle). y = hoạt động, n = vô hiệu.",
+                "operationId": "c3f73e7b80594503390433aa3a66e3da",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "customer_id": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "description": "y|n",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{status:1}"
+                    }
+                }
+            }
+        },
+        "/home/register": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Customer register",
+                "operationId": "ed1256978e61b237c1cecb80054875df",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "customer_name": {
+                                        "type": "string"
+                                    },
+                                    "phone_number": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON {status:\"1\", msg, id}"
+                    }
+                }
+            }
+        },
+        "/home/login": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Customer login (plaintext; empty password = Google/Apple). Phone + TV.",
+                "operationId": "9211bdb413e470ca4e9c9e21066679b6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON {status:1, msg, info:[User]}"
+                    }
+                }
+            }
+        },
+        "/home/logout1": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Clear FCM token",
+                "operationId": "b3546295311695827324f8fd8038e3de",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "fcm_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON {status:1, msg, info:[]}"
+                    }
+                }
+            }
+        },
+        "/home/SendCode": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Send OTP to customer email",
+                "operationId": "a2eed202f6146f79148aebfe3d3d96ec",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status != -1 OK; status -1 + msg if email missing"
+                    }
+                }
+            }
+        },
+        "/home/resetpass": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Reset customer password with OTP",
+                "operationId": "8123deb56bfad54c7ac49550f277ff3c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "code_authen",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "code_authen": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1 or msg"
+                    }
+                }
+            }
+        },
+        "/home/changepass": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Change customer password",
+                "operationId": "d712937504a946ccad7d2e1dcacd5fc4",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password_old": {
+                                        "type": "string"
+                                    },
+                                    "password_new": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1 or -2 + msg"
+                    }
+                }
+            }
+        },
+        "/home/DeleteUser1": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Soft-delete customer by email",
+                "operationId": "e6ca6d9c6b65d1784fdac6feeeb2b42a",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/home/GetInfoCustomer_ById/{id}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Customer by id — phone + TV",
+                "operationId": "954b3f8e2b512005b96d692ff7fba982",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON {status, msg, userList}"
+                    }
+                }
+            }
+        },
+        "/home/GetInfoCustomer_ByEmail/{email}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Customer by email — phone + TV Google login",
+                "operationId": "7efe8606a73862c0cbbe2350333c93c9",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON {status, msg, userList}"
+                    }
+                }
+            }
+        },
+        "/home/UpdateInfoCustomer_ById/{id}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Update customer profile",
+                "operationId": "98904ace517962484b8ebc985d3ad095",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "customer_name": {
+                                        "type": "string"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "phone_number": {
+                                        "type": "string"
+                                    },
+                                    "sex": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/home/GetListCustomer_Bysericomputer/{serial}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV: serial đã thuộc customer nào (chặn login nếu máy người khác)",
+                "operationId": "574fb033e582117de28464c3aeab20fe",
+                "parameters": [
+                    {
+                        "name": "serial",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "JSON {list:[{customer_id,...}]}"
+                    }
+                }
+            }
+        },
+        "/home/BuyPacket_ByIdCustomer_1": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone mua/gia hạn gói — tạo đơn pay=0 chờ admin kích hoạt",
+                "operationId": "56460046a0d0cc848bcc0e471c3aeebc",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "packet_id": {
+                                        "type": "string"
+                                    },
+                                    "name_packet": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "detail": {
+                                        "type": "string"
+                                    },
+                                    "customer_id": {
+                                        "type": "string"
+                                    },
+                                    "is_trial": {
+                                        "type": "string"
+                                    },
+                                    "pay_month": {
+                                        "description": "1|6|12",
+                                        "type": "string"
+                                    },
+                                    "is_business": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1 hoặc -2"
+                    }
+                }
+            }
+        },
+        "/home/GetPacket_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Gói đã mua — phone + TV (TV chỉ cần có gói active)",
+                "operationId": "61d6190b0b1c2c4e195a1db2f308dc98",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{Packet_list}"
+                    }
+                }
+            }
+        },
+        "/home/CancelPacket_ById/{paidId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Hủy đơn/gói",
+                "operationId": "f57c326a891ac9f3e0603a975f768adc",
+                "parameters": [
+                    {
+                        "name": "paidId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "status 1 hoặc -2"
+                    }
+                }
+            }
+        },
+        "/home/Get_Transactions_ByCustomerId": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Lịch sử giao dịch (phone đọc response.data Map, luôn JSON)",
+                "operationId": "5862c38ea4a0f372eb0511a6b3b4d898",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "customer_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{transaction_list}"
+                    }
+                }
+            }
+        },
+        "/home/GetAllPacket": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Catalog gói",
+                "operationId": "0221747aace538ed7032317939d33d10",
+                "responses": {
+                    "200": {
+                        "description": "{Packet_list}"
+                    }
+                }
+            }
+        },
+        "/home/CreatePacket": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin tạo gói (thêm is_trial, giá 1/6/12 tháng, limit_qty, limit_capacity bytes)",
+                "operationId": "56e27aa7f0dca73d4f103cd0ab41066e",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name_packet": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "string"
+                                    },
+                                    "price_6_month": {
+                                        "type": "string"
+                                    },
+                                    "price_12_month": {
+                                        "type": "string"
+                                    },
+                                    "month_qty": {
+                                        "type": "string"
+                                    },
+                                    "day_qty": {
+                                        "type": "string"
+                                    },
+                                    "year_qty": {
+                                        "type": "string"
+                                    },
+                                    "picture": {
+                                        "type": "string"
+                                    },
+                                    "detail": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "limit_qty": {
+                                        "description": "Số TV tối đa",
+                                        "type": "string"
+                                    },
+                                    "limit_capacity": {
+                                        "description": "Bytes",
+                                        "type": "string"
+                                    },
+                                    "account_id": {
+                                        "type": "string"
+                                    },
+                                    "is_trial": {
+                                        "type": "string"
+                                    },
+                                    "is_business": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{status:1}"
+                    }
+                }
+            }
+        },
+        "/home/UpdatePacket_ById/{id}": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin sửa gói",
+                "operationId": "03105a2e620e882a082fd9983dbffa5b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name_packet": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "string"
+                                    },
+                                    "price_6_month": {
+                                        "type": "string"
+                                    },
+                                    "price_12_month": {
+                                        "type": "string"
+                                    },
+                                    "limit_qty": {
+                                        "type": "string"
+                                    },
+                                    "limit_capacity": {
+                                        "type": "string"
+                                    },
+                                    "is_trial": {
+                                        "type": "string"
+                                    },
+                                    "is_business": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{status:1}"
+                    }
+                }
+            }
+        },
+        "/home/DeletePacket_ById/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin xóa gói (soft delete)",
+                "operationId": "3b5948dd11b1477f159e0471a93bf566",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{status:1}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/login": {
+            "post": {
+                "tags": [
+                    "Admin",
+                    "Projector (TV)"
+                ],
+                "summary": "Admin login (password MD5). TV cũng gọi khi đăng nhập tài khoản admin trên box.",
+                "operationId": "9f1ad8d462fe17dbef07f7156a718748",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "description": "MD5 hex",
+                                        "type": "string"
+                                    },
+                                    "fcm_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "JSON {status:1, accountList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/changepass": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin change password (MD5 fields)",
+                "operationId": "4e36683b97894a99a5cef6975a560ffb",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password_old": {
+                                        "type": "string"
+                                    },
+                                    "password_new": {
+                                        "type": "string"
+                                    },
+                                    "password_ag": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/sysaccount/createaccount": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create admin account (password MD5)",
+                "operationId": "89f4534df04cfc7512f90cca56851fa1",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone_number": {
+                                        "type": "string"
+                                    },
+                                    "user_type": {
+                                        "description": "1 Super, 2 Admin, 3 Member",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/sysaccount/SendCode": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Send OTP to admin email",
+                "operationId": "ab299dd5a179c6bb08d8354753d6b41a",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/sysaccount/resetpass": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin reset password (password MD5)",
+                "operationId": "c7f7532cddc1abf7c1f6f30939b61705",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "code_authen": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/sysaccount/GetListAccount": {
+            "get": {
+                "tags": [
+                    "Admin",
+                    "Customer (Phone)"
+                ],
+                "summary": "Danh sách admin. Phone lấy account_id để InsertNotify_Account.",
+                "operationId": "8a9ae46572229744716e2188e7122e76",
+                "responses": {
+                    "200": {
+                        "description": "JSON {accountList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/OrderNew": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Đơn chờ kích hoạt (pay=0)",
+                "operationId": "db41cd1f0917230b7246099f519b9288",
+                "responses": {
+                    "200": {
+                        "description": "{orderList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/GetAllOrder": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Tất cả đơn",
+                "operationId": "e2206e998244573af2369b30cb975417",
+                "responses": {
+                    "200": {
+                        "description": "{orderList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/order_endtime": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Đơn đã hết hạn",
+                "operationId": "fe082a0bb5c0cc1b4397a743ed2d07d7",
+                "responses": {
+                    "200": {
+                        "description": "{orderList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/detail_order/{paidId}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Chi tiết đơn",
+                "operationId": "526d628a1cd09f6a019b75847c081328",
+                "parameters": [
+                    {
+                        "name": "paidId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{orderList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/Filter_Packet": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Lọc đơn (thống kê). Ngày yyyy-MM-dd",
+                "operationId": "c204a4cf055aedf8299217f9939d167c",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name_packet": {
+                                        "type": "string"
+                                    },
+                                    "sdt": {
+                                        "type": "string"
+                                    },
+                                    "reg1": {
+                                        "type": "string"
+                                    },
+                                    "reg2": {
+                                        "type": "string"
+                                    },
+                                    "validate1": {
+                                        "type": "string"
+                                    },
+                                    "validate2": {
+                                        "type": "string"
+                                    },
+                                    "exdate1": {
+                                        "type": "string"
+                                    },
+                                    "exdate2": {
+                                        "type": "string"
+                                    },
+                                    "pay1": {
+                                        "type": "string"
+                                    },
+                                    "pay2": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{orderList}"
+                    }
+                }
+            }
+        },
+        "/sysaccount/active_order_1/{paidId}": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Admin kích hoạt đơn. Field vaild_date là typo của app.",
+                "operationId": "067378025e59967a4812ed356bb27d35",
+                "parameters": [
+                    {
+                        "name": "paidId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "vaild_date": {
+                                        "description": "yyyy-MM-dd (typo app)",
+                                        "type": "string"
+                                    },
+                                    "packet_id": {
+                                        "type": "string"
+                                    },
+                                    "payment_date": {
+                                        "description": "yyyy-MM-dd",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1 hoặc -2"
+                    }
+                }
+            }
+        },
+        "/vietQR/getQRCode_ByPaidId": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone đọc response.data[qrLink] không jsonDecode — luôn application/json. Chưa có webhook; admin kích hoạt tay.",
+                "operationId": "481f57f85cf1e2393ecffab577f201a4",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "paid_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{qrLink}"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Customer (Phone)",
+            "description": "RemoteProjector2024 — phone. Auth plaintext, mua gói, VietQR, notify, media."
+        },
+        {
+            "name": "Projector (TV)",
+            "description": "remote_projector_tv — TV box. Login customer, check serial, gói active, pairing, lịch chiếu, lệnh."
+        },
+        {
+            "name": "Admin",
+            "description": "RemoteProjectorAdmin — CRUD gói, duyệt đơn, khách, tài khoản MD5."
+        }
+    ]
+}

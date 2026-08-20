@@ -2,7 +2,7 @@
 
 Nguồn sự thật. Rules: [`.agents/rules/`](rules/). Xong việc: ghi [`PROGRESS.md`](PROGRESS.md).
 
-Backend Laravel giữ **đúng path/payload** 3 app Flutter hiện tại (`/home/*`, `/sysaccount/*`, `/vietQR/*`, `/config6789.php`). Response luôn là **chuỗi JSON** (`Content-Type: text/html`), `status = 1` thành công, `-2` hiện `msg`.
+Backend Laravel giữ **đúng path/payload** 3 app Flutter hiện tại (`/home/*`, `/sysaccount/*`, `/vietQR/*`, `/config6789.php`). App nhận chuỗi JSON `text/html`; Swagger Try it out nhận `application/json`. `status = 1` thành công, `-2` hiện `msg`.
 
 Bảng prefix `tb_*`. Media lưu disk local, quota theo gói.
 
@@ -36,7 +36,7 @@ flowchart TB
 **Mục tiêu:** Laravel nhận được request kiểu PHP cũ, Swagger chạy, bảng trống sẵn.
 
 ### Làm gì
-- Helper `LegacyJson::send($array)` — `json_encode` + header text/html (Dio app `jsonDecode(response.data)`).
+- Helper `LegacyJson::send($array)` — app `text/html` JSON string; Swagger `application/json`.
 - `routes/legacy.php` không CSRF, không prefix `/api`.
 - Migrations `tb_*` (chưa cần logic đầy đủ).
 - `GET /config6789.php`.

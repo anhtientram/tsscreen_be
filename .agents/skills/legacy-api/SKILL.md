@@ -14,11 +14,15 @@ final class LegacyJson
 {
     public static function send(array $payload, int $http = 200)
     {
-        return response(
-            json_encode($payload, JSON_UNESCAPED_UNICODE),
-            $http,
-            ['Content-Type' => 'text/html; charset=utf-8']
-        );
+        $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+
+        if (self::fromSwagger()) {
+            return response()->json($payload, $http, [], $flags | JSON_PRETTY_PRINT);
+        }
+
+        return response(json_encode($payload, $flags), $http, [
+            'Content-Type' => 'text/html; charset=utf-8',
+        ]);
     }
 }
 ```
@@ -28,3 +32,4 @@ final class LegacyJson
 - ID trên URL: string/int đều nhận.
 - Serialize model: số → string trong JSON (`"12"`).
 - Endpoint mẫu: xem `.agents/workflows.md` và Flutter `**/constants/*api.dart`.
+- Swagger tag theo app (`App\OpenApi\AppTags`): `Customer (Phone)`, `Projector (TV)`, `Admin`. Route dùng chung gắn nhiều tag.

@@ -9,7 +9,7 @@ description: Implement the current TS Screen Laravel backend phase (0-7) matchin
 2. Đọc section phase đó trong `.agents/workflows.md`.
 3. Đọc rules: `00-core`, `01-legacy-api`, `02-schema`; thêm `03-media` nếu Phase 5, `04-commands` nếu Phase 7.
 4. Dùng skill `legacy-api` khi viết controller/response.
-5. Swagger: document endpoint vừa thêm.
+5. Swagger: document endpoint vừa thêm. Tag theo app (`AppTags`): `Customer (Phone)`, `Projector (TV)`, `Admin`. Route dùng chung gắn đủ tag.
 6. Không sửa 3 app Flutter trừ khi user yêu cầu (Phase 7 tắt poll).
 7. Xong: skill `note-progress`.
 

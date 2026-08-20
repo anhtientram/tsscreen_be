@@ -1,0 +1,15 @@
+---
+description: TS Screen rebuild — luôn đọc .agents, ghi PROGRESS sau mỗi việc xong
+alwaysApply: true
+---
+
+# TS Screen
+
+Đọc `AGENTS.md` và `.agents/README.md`.
+
+- Workflows: `.agents/workflows.md`
+- Phase hiện tại: `.agents/PROGRESS.md`
+- Rules: `.agents/rules/`
+- Skills: `.agents/skills/`
+
+Sau mỗi việc xong phải ghi `.agents/PROGRESS.md`. Không poll lệnh 5s/10s. Phase 7 mới làm Firebase gửi lệnh.

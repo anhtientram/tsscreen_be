@@ -19,6 +19,7 @@ env:
   PHPIX_PHP_THREADS: '4'
   LOG_STACK: single,stderr
   L5_SWAGGER_GENERATE_ALWAYS: 'false'
+  UPLOADS_ROOT: /data
 jobs:
 - action:
     execute:
@@ -30,4 +31,4 @@ name: tsscreen_be
 owner: anhtientram
 volumes:
   - name: uploads
-    mount: /app/public/uploads
+    mount: /data/uploads

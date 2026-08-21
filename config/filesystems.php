@@ -49,7 +49,8 @@ return [
 
         'uploads' => [
             'driver' => 'local',
-            'root' => public_path(),
+            // Wasmer: UPLOADS_ROOT=/data (volume). Local: public/uploads.
+            'root' => env('UPLOADS_ROOT') ?: public_path(),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/'),
             'visibility' => 'public',
             'throw' => false,

@@ -5,8 +5,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** `app.yaml` repo = yaml Wasmer + volumes (Git là nguồn)
-- **Blocked:** Đợi push `app.yaml`
+- **Last completed:** Volume `/data/uploads` — không ghi vào `public/` (GET 500)
+- **Blocked:** —
 
 ## Phase checklist
 
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Volume có, ảnh GET 500
+
+- **Done:** Upload ok rồi instance `ExitCode::27`. GET `/uploads/...jpg` **500** vì file trong `public/` (phpix static/rewrite). Chuyển volume mount `/data/uploads`, `UPLOADS_ROOT=/data`, Laravel serve + MIME. URL app vẫn `/uploads/{token}/file`.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / test
+- **Files:** `config/filesystems.php`, `app.yaml`, `.env.example`
+- **Next:** Push; dashboard env `UPLOADS_ROOT=/data`; upload lại. Tab Storage file nằm `token/file.jpg`.
+- **Notes:** Log PHP 8.3.21 + files.photo.gallery = UI browse volume, không phải API Laravel.
 
 ### 2026-08-21 — Storage trống dù upload ok
 

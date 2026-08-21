@@ -1,6 +1,6 @@
 # Media (Phase 5)
 
-- Path JSON: `./uploads/{customer_token}/file.mp4` — app `replaceFirst('.', hostApi)`.
+- Path JSON: `./uploads/{customer_token}/file.mp4` — app `replaceFirst('.', hostApi)`. Disk: `public/` local, Wasmer `UPLOADS_ROOT=/data` (volume `/data/uploads`).
 - Stream upload, không load cả file vào RAM.
 - >200MB: chunk 100MB `uploadfile_customer_large`. `cancelUpload` xóa `.part*`.
 - Quota từ `tb_resources`, không scan disk mỗi request.

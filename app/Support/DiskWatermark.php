@@ -23,6 +23,14 @@ final class DiskWatermark
             return false;
         }
 
-        return self::usedRatio() >= $threshold;
+        $path = storage_path('app');
+        $free = @disk_free_space($path);
+        $total = @disk_total_space($path);
+        // Wasmer/WASM: disk ảo nhỏ, disk_total_space hay báo >85% dù vẫn ghi được
+        if (! $total || $free === false || $total < 4 * 1024 * 1024 * 1024) {
+            return false;
+        }
+
+        return (($total - $free) / $total) >= $threshold;
     }
 }

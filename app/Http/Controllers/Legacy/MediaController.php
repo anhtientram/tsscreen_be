@@ -13,6 +13,7 @@ use App\Support\LegacyJson;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -90,6 +91,8 @@ class MediaController extends Controller
         return $this->withUploadLock($request, function () use ($request) {
             $file = $request->file('fileupload');
             if (! $file instanceof UploadedFile) {
+                $this->hostLog('upload missing file field');
+
                 return LegacyJson::send(['status' => 0, 'msg' => 'Thiếu file']);
             }
 
@@ -105,10 +108,16 @@ class MediaController extends Controller
 
             $relative = 'uploads/'.$token.'/'.$name;
             $stream = fopen($file->getRealPath(), 'r');
-            Storage::disk('uploads')->put($relative, $stream);
+            $written = Storage::disk('uploads')->put($relative, $stream);
             if (is_resource($stream)) {
                 fclose($stream);
             }
+            if (! $written || ! Storage::disk('uploads')->exists($relative)) {
+                $this->hostLog('upload write failed', ['path' => $relative]);
+
+                return LegacyJson::send(['status' => -2, 'msg' => 'Không ghi được file trên hosting']);
+            }
+            $this->hostLog('upload ok', ['path' => $relative, 'bytes' => $file->getSize()]);
 
             $resource = $this->storeResource($customer, $token, $name, $file->getSize(), $file->getMimeType() ?: $file->getClientMimeType());
 
@@ -232,6 +241,7 @@ class MediaController extends Controller
         $relative = 'uploads/'.$token.'/'.$filename;
         $disk = Storage::disk('uploads');
         if (! $disk->exists($relative)) {
+            $this->hostLog('media 404', ['path' => $relative]);
             abort(404);
         }
 
@@ -288,6 +298,8 @@ class MediaController extends Controller
     private function guardUpload(Request $request, UploadedFile $file)
     {
         if (DiskWatermark::isFull()) {
+            $this->hostLog('upload reject', ['reason' => 'disk']);
+
             return LegacyJson::send(['status' => 0, 'msg' => 'Ổ đĩa server đầy']);
         }
         if ($file->getSize() > self::MAX_REQUEST_BYTES) {
@@ -297,18 +309,26 @@ class MediaController extends Controller
         $mime = $file->getMimeType() ?: $file->getClientMimeType();
         $name = $this->safeName($file->getClientOriginalName());
         if (! $this->isAllowedName($name)) {
+            $this->hostLog('upload reject', ['reason' => 'ext', 'name' => $name]);
+
             return LegacyJson::send(['status' => 0, 'msg' => 'Định dạng không hỗ trợ']);
         }
         if ($mime && ! in_array($mime, self::MIME_WHITELIST, true) && ! in_array($mime, ['application/octet-stream', 'application/mp4'], true)) {
+            $this->hostLog('upload reject', ['reason' => 'mime', 'mime' => $mime]);
+
             return LegacyJson::send(['status' => 0, 'msg' => 'Định dạng không hỗ trợ']);
         }
 
         $token = $this->token($request);
         $customer = $this->resolveCustomer($request, $token);
         if (! $customer) {
+            $this->hostLog('upload reject', ['reason' => 'no customer']);
+
             return LegacyJson::send(['status' => 0, 'msg' => 'Không tìm thấy khách hàng']);
         }
         if (! PacketQuota::canAddBytes($customer->customer_id, (int) $file->getSize())) {
+            $this->hostLog('upload reject', ['reason' => 'quota', 'customer_id' => $customer->customer_id]);
+
             return LegacyJson::send(['status' => 0, 'msg' => 'Hết dung lượng gói']);
         }
 
@@ -446,5 +466,12 @@ class MediaController extends Controller
             'jpg', 'jpeg' => 'image/jpeg',
             default => 'application/octet-stream',
         };
+    }
+
+    private function hostLog(string $msg, array $ctx = []): void
+    {
+        $line = '[media] '.$msg.($ctx !== [] ? ' '.json_encode($ctx, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : '');
+        error_log($line);
+        Log::info($msg, $ctx);
     }
 }

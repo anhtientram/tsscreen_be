@@ -23,7 +23,7 @@ Không đổi DB: ☑
 
 - Stream UploadedFile, không load RAM.
 - Quota `tb_resources.file_size` + PacketQuota limit_capacity (server).
-- Disk > 85% reject (skip trong testing).
+- Disk > 85% reject (skip trong testing **và** disk ảo < 4GB — Wasmer).
 - Max 2 upload/user; max ~110MB/request.
 - MIME whitelist; queue prune `.part*` > 24h.
 - Serve Range via BinaryFileResponse.

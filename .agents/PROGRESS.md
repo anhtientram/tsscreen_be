@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Revert `public/.htaccess` về Laravel mặc định (phpix)
+- **Last completed:** Wasmer — log media ra stderr; bỏ chặn disk ảo “đầy”
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,22 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Upload không thấy log trên Wasmer
+
+- **Done:** Console Wasmer chỉ PHPix boot, không có Laravel. `LOG_STACK` mặc định `single,stderr`. Upload ghi `[media] upload ok|reject|404`. `DiskWatermark` bỏ chặn khi disk ảo < 4GB (Wasmer hay báo >85% đầy). Sau `put` nếu file không tồn tại → `status -2`.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / test
+- **Files:** `DiskWatermark.php`, `MediaController.php`, `config/logging.php`, `.env.example`, `public/.user.ini`
+- **Next:** Deploy; Wasmer env `LOG_STACK=single,stderr`. Upload rồi tìm log `[media]`. File vẫn mất khi deploy nếu chưa gắn Volume.
+- **Notes:** Log 22:24 và 22:26 = hai lần start PHP (~2 phút), disk ephemeral reset.
+
+### 2026-08-21 — Ảnh demo 404 sau push htaccess
+
+- **Done:** URL `.../uploads/01demo0.../image_picker_*.png` trả **404**. File upload nằm `public/uploads/` trên disk **ephemeral** Wasmer — deploy / `ExitCode::27` xóa hết. DB `tb_resources` còn path, byte không còn. Không phải Content-Type.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / — / — / —
+- **Files:** —
+- **Next:** Upload lại từ Phone. Lâu dài: [Wasmer Volume](https://docs.wasmer.io/edge/guides/volumes/) mount `public/uploads`.
+- **Notes:** Token seed `01demo0customer0token0tsscreen`.
 
 ### 2026-08-21 — Push htaccess làm Swagger/config xoay
 

@@ -5,8 +5,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Hướng dẫn `volumes` trên app.yaml Wasmer tsscreen_be
-- **Blocked:** Chưa deploy volume `/app/public/uploads`
+- **Last completed:** `app.yaml` repo = yaml Wasmer + volumes (Git là nguồn)
+- **Blocked:** Đợi push `app.yaml`
 
 ## Phase checklist
 
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Storage trống dù upload ok
+
+- **Done:** Log `[media] upload ok` = file ghi disk **instance** (ephemeral). Tab Storage trống = **chưa có Volume**. Git/anybuild ghi đè yaml dashboard, mất `volumes`. Thêm `app.yaml` trong repo: volume `uploads` → `/app/public/uploads`.
+- **Pipeline:** — / DB (không đổi) / — / — / —
+- **Files:** `app.yaml`
+- **Next:** Commit + push `app.yaml`. Tab Storage phải hiện `uploads`. Rồi upload lại ảnh (deploy này xóa file vừa up).
+- **Notes:** URL ảnh **ngay lúc này** (chưa restart) phải mở được.
 
 ### 2026-08-21 — app.yaml Wasmer thiếu volumes
 

@@ -1,0 +1,33 @@
+annotations:
+  anybuild.run/config:
+    composer_build_script: post-update-cmd
+    composer_enable: true
+    name: out
+    node_build_command: npm run build
+    node_install_inputs:
+    - package.json
+    node_package_manager: npm
+    php_framework: laravel
+    php_public_dir: public
+    phpix: true
+  anybuild.run/provider: laravel
+  anybuild.run/version: 0.27.2
+  wasmer.io/version: 7.2.1
+app_id: da_Ra7IetdUqVD7
+enableDatabase: true
+env:
+  PHPIX_PHP_THREADS: '4'
+  LOG_STACK: single,stderr
+  L5_SWAGGER_GENERATE_ALWAYS: 'false'
+jobs:
+- action:
+    execute:
+      command: after_deploy
+  name: after_deploy
+  trigger: post-deployment
+kind: wasmer.io/App.v0
+name: tsscreen_be
+owner: anhtientram
+volumes:
+  - name: uploads
+    mount: /app/public/uploads

@@ -20,7 +20,7 @@ class PruneUploadParts extends Command
 
         foreach ($stale as $part) {
             if ($part->part_path) {
-                Storage::disk('public')->delete($part->part_path);
+                Storage::disk('uploads')->delete($part->part_path);
             }
             $part->delete();
         }

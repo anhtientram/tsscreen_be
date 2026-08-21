@@ -104,7 +104,7 @@ Route::prefix('home')->group(function (): void {
     Route::post('cancelUpload', [MediaController::class, 'cancel']);
 });
 
-Route::get('uploads/{token}/{filename}', [MediaController::class, 'serve'])->where('filename', '.*');
+Route::match(['get', 'head'], 'uploads/{token}/{filename}', [MediaController::class, 'serve'])->where('filename', '.*');
 
 Route::prefix('sysaccount')->group(function (): void {
     Route::post('login', [SysAccountController::class, 'login']);

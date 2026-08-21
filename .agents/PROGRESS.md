@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** CreateCamp: `default_yn`/`run_by_default_yn` rỗng → `'0'` (MySQL hosting NOT NULL)
+- **Last completed:** Media HEAD `/uploads/...` + ghi file vào `public/uploads` (Wasmer 404)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — HEAD /uploads 404 trên Wasmer
+
+- **Done:** App `HEAD` URL `./uploads/{token}/file` (lấy content-length). File trước đó chỉ nằm `storage/app/public` nên Wasmer 404. Ghi vào `public/uploads/`, route GET+HEAD, Content-Length.
+- **Pipeline:** phân tích 3 app / DB / tối ưu / dev / test
+- **Files:** `MediaController`, `routes/legacy.php`, `config/filesystems.php`, `tests/Feature/LegacyMediaTest.php`
+- **Next:** Deploy hosting, **upload lại** ảnh (file cũ không tự copy). `public/uploads` phải ghi được.
+- **Notes:** Notify `GetNofityNew_*` vẫn 404 (Phase 6).
 
 ### 2026-08-21 — Fix CreateCamp default_yn null trên hosting
 

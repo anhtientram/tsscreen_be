@@ -38,7 +38,7 @@ class MediaController extends Controller
     public function checkDir(Request $request)
     {
         $token = $this->token($request);
-        $exists = $token !== '' && Storage::disk('public')->exists('uploads/'.$token);
+        $exists = $token !== '' && Storage::disk('uploads')->exists('uploads/'.$token);
 
         return LegacyJson::send(['status' => $exists ? 1 : 0, 'msg' => $exists ? 'OK' : 'not found']);
     }
@@ -51,7 +51,7 @@ class MediaController extends Controller
             return LegacyJson::send(['status' => 0, 'msg' => 'Thiếu name_dir']);
         }
 
-        Storage::disk('public')->makeDirectory('uploads/'.$token);
+        Storage::disk('uploads')->makeDirectory('uploads/'.$token);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -105,7 +105,7 @@ class MediaController extends Controller
 
             $relative = 'uploads/'.$token.'/'.$name;
             $stream = fopen($file->getRealPath(), 'r');
-            Storage::disk('public')->put($relative, $stream);
+            Storage::disk('uploads')->put($relative, $stream);
             if (is_resource($stream)) {
                 fclose($stream);
             }
@@ -149,7 +149,7 @@ class MediaController extends Controller
             $partName = $filename.'.part'.$chunkIndex;
             $partRelative = 'uploads/'.$token.'/'.$partName;
             $stream = fopen($file->getRealPath(), 'r');
-            Storage::disk('public')->put($partRelative, $stream);
+            Storage::disk('uploads')->put($partRelative, $stream);
             if (is_resource($stream)) {
                 fclose($stream);
             }
@@ -200,7 +200,7 @@ class MediaController extends Controller
             $row->deleted = 'y';
             $row->save();
         }
-        Storage::disk('public')->delete('uploads/'.$token.'/'.$name);
+        Storage::disk('uploads')->delete('uploads/'.$token.'/'.$name);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -217,7 +217,7 @@ class MediaController extends Controller
 
         foreach ($parts as $part) {
             if ($part->part_path) {
-                Storage::disk('public')->delete($part->part_path);
+                Storage::disk('uploads')->delete($part->part_path);
             }
             $part->delete();
         }
@@ -225,19 +225,27 @@ class MediaController extends Controller
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
 
-    #[OA\Get(path: '/uploads/{token}/{filename}', summary: 'Serve media HTTP Range (TV seek)', tags: [AppTags::PROJECTOR, AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'legacy JSON')])]
-    public function serve(string $token, string $filename): BinaryFileResponse|Response
+    #[OA\Get(path: '/uploads/{token}/{filename}', summary: 'GET + HEAD media (app HEAD lấy content-length)', tags: [AppTags::PROJECTOR, AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'file / HEAD length')])]
+    public function serve(Request $request, string $token, string $filename): BinaryFileResponse|Response
     {
-        $filename = $this->safeName($filename);
+        $filename = $this->safeName(urldecode($filename));
         $relative = 'uploads/'.$token.'/'.$filename;
-        $full = Storage::disk('public')->path($relative);
+        $full = Storage::disk('uploads')->path($relative);
         if (! is_file($full)) {
             abort(404);
         }
 
-        return response()->file($full, [
+        $headers = [
             'Accept-Ranges' => 'bytes',
-        ]);
+            'Content-Length' => (string) filesize($full),
+            'Content-Type' => mime_content_type($full) ?: 'application/octet-stream',
+        ];
+
+        if ($request->isMethod('HEAD')) {
+            return response('', 200, $headers);
+        }
+
+        return response()->file($full, $headers);
     }
 
     private function withUploadLock(Request $request, \Closure $then)
@@ -296,7 +304,7 @@ class MediaController extends Controller
     private function assemble(string $token, string $filename, int $totalChunks, ?Customer $customer): ?ResourceFile
     {
         $relative = 'uploads/'.$token.'/'.$filename;
-        $full = Storage::disk('public')->path($relative);
+        $full = Storage::disk('uploads')->path($relative);
         $dir = dirname($full);
         if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
@@ -310,7 +318,7 @@ class MediaController extends Controller
         $size = 0;
         for ($i = 1; $i <= $totalChunks; $i++) {
             $partRelative = 'uploads/'.$token.'/'.$filename.'.part'.$i;
-            $partFull = Storage::disk('public')->path($partRelative);
+            $partFull = Storage::disk('uploads')->path($partRelative);
             if (! is_file($partFull)) {
                 fclose($out);
                 @unlink($full);
@@ -332,7 +340,7 @@ class MediaController extends Controller
         }
 
         for ($i = 1; $i <= $totalChunks; $i++) {
-            Storage::disk('public')->delete('uploads/'.$token.'/'.$filename.'.part'.$i);
+            Storage::disk('uploads')->delete('uploads/'.$token.'/'.$filename.'.part'.$i);
         }
         UploadChunk::query()->where('name_dir', $token)->where('filename', $filename)->delete();
 
@@ -355,7 +363,7 @@ class MediaController extends Controller
         $parts = UploadChunk::query()->where('name_dir', $token)->where('filename', $filename)->get();
         foreach ($parts as $part) {
             if ($part->part_path) {
-                Storage::disk('public')->delete($part->part_path);
+                Storage::disk('uploads')->delete($part->part_path);
             }
             $part->delete();
         }
@@ -402,7 +410,7 @@ class MediaController extends Controller
 
     private function ensureDir(string $token): void
     {
-        Storage::disk('public')->makeDirectory('uploads/'.$token);
+        Storage::disk('uploads')->makeDirectory('uploads/'.$token);
     }
 
     private function safeName(string $name): string

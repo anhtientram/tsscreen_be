@@ -22,7 +22,7 @@ class LegacyMediaTest extends TestCase
         parent::setUp();
         Carbon::setTestNow(Carbon::parse('2026-08-20 12:00:00'));
         $this->seed([AuthSeeder::class, PacketSeeder::class]);
-        Storage::fake('public');
+        Storage::fake('uploads');
     }
 
     protected function tearDown(): void
@@ -61,6 +61,9 @@ class LegacyMediaTest extends TestCase
         $this->assertSame(1, $body['status']);
         $this->assertSame('./uploads/'.$token.'/clip.mp4', $body['path_file']['path']);
         $this->assertIsInt($body['path_file']['file_size']);
+
+        $this->call('HEAD', '/uploads/'.$token.'/clip.mp4')->assertOk();
+        $this->get('/uploads/'.$token.'/clip.mp4')->assertOk();
 
         $files = json_decode($this->post('/home/getfiles_customer', ['name_dir' => $token])->getContent(), true);
         $this->assertCount(1, $files['file_list']);

@@ -1,11 +1,3 @@
-AddType image/jpeg .jpg .jpeg
-AddType image/png .png
-AddType image/webp .webp
-AddType image/gif .gif
-AddType video/mp4 .mp4
-AddType video/quicktime .mov
-AddType video/webm .webm
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -14,23 +6,19 @@ AddType video/webm .webm
     RewriteEngine On
 
     # Handle Authorization Header
-    RewriteCond %{REQUEST_URI} !^/uploads/
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     # Handle X-XSRF-Token Header
-    RewriteCond %{REQUEST_URI} !^/uploads/
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
 
     # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_URI} !^/uploads/
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Media tĩnh: phpix loop nếu rewrite /uploads/ (kể cả ra index.php hoặc "-")
-    RewriteCond %{REQUEST_URI} !^/uploads/
+    # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]

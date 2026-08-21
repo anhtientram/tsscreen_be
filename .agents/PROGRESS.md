@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** phpix — không rewrite `/uploads/` (loop Wasmer)
+- **Last completed:** Revert `public/.htaccess` về Laravel mặc định (phpix)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,22 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Push htaccess làm Swagger/config xoay
+
+- **Done:** phpix không parse `AddType` + `RewriteCond %{REQUEST_URI} !^/uploads/` trên mọi rule → front controller Laravel không chạy, `/api/documentation` và `/config6789.php` treo. Revert `public/.htaccess` về bản Laravel gốc. MIME media vẫn do `MediaController` (đuôi file).
+- **Pipeline:** — / DB (không đổi) / tối ưu / dev / —
+- **Files:** `public/.htaccess`
+- **Next:** Push htaccess gốc; mở config/Swagger lại. Ảnh `/uploads/` serve static nếu file có thật.
+- **Notes:** Đừng thêm AddType / exclude REQUEST_URI trên Wasmer PHPix.
+
+### 2026-08-21 — Swagger/config “xoay” trên Wasmer
+
+- **Done:** [`config6789.php`](https://tsscreen-be.wasmer.app/config6789.php) vẫn trả JSON. Swagger UI xoay vì `L5_SWAGGER_GENERATE_ALWAYS=true` scan `app/` mỗi lần `/docs`, Wasmer 4 worker + cold start. Default + `.env.example` → `false` (dùng `storage/api-docs/api-docs.json`).
+- **Pipeline:** — / DB (không đổi) / tối ưu / dev / —
+- **Files:** `config/l5-swagger.php`, `.env.example`
+- **Next:** Deploy; trên Wasmer set `L5_SWAGGER_GENERATE_ALWAYS=false` nếu env cũ còn `true`. Đợi cold start 15–30s sau idle.
+- **Notes:** `ExitCode::27` = Edge tắt instance idle, request đầu chậm.
 
 ### 2026-08-21 — phpix rewrite loop trên file tĩnh
 

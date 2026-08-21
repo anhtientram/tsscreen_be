@@ -2,22 +2,24 @@
 
 ```
 .agents/
-  README.md          ← file này
-  PROGRESS.md        ← log bắt buộc sau mỗi việc xong
-  workflows.md       ← phase 0–7, sequence, endpoint
-  rules/             ← quy ước luôn tuân thủ
-  skills/            ← hướng dẫn làm từng loại việc
+  README.md
+  PROGRESS.md
+  workflows.md           ← 5 cổng bắt buộc mỗi API
+  workflows/phases.md    ← backlog phase 0–7
+  workflows/01–05-*.md   ← chi tiết từng cổng
+  templates/module-card.md
+  rules/
+  skills/                ← build-module, implement-phase, …
 ```
 
-Root [`AGENTS.md`](../AGENTS.md) trỏ vào đây (Cursor luôn load).
+Root [`AGENTS.md`](../AGENTS.md) trỏ vào đây.
 
 | Cần | Đọc |
 |-----|-----|
 | Đang làm phase nào | `PROGRESS.md` |
-| Luồng nghiệp vụ / API | `workflows.md` |
-| Path JSON, bảng `tb_*`, media, lệnh | `rules/` |
-| Implement một phase | `skills/implement-phase/SKILL.md` |
-| Ghi note khi xong | `skills/note-progress/SKILL.md` |
-| Viết endpoint kiểu PHP cũ | `skills/legacy-api/SKILL.md` |
+| Cách làm 1 API | `workflows.md` + skill `build-module` |
+| Sequence phase 0–7 | `workflows/phases.md` |
+| Path JSON, bảng, media, lệnh | `rules/` |
+| Ghi note | skill `note-progress` |
 
-3 app Flutter (không sửa ở phase đầu): `RemoteProjector2024` (phone), `remote_projector_tv` (TV), `RemoteProjectorAdmin` (admin).
+3 app Flutter (không sửa phase đầu): `RemoteProjector2024` (phone), `remote_projector_tv` (TV), `RemoteProjectorAdmin` (admin).

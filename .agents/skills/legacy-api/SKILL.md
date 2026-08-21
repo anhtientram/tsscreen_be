@@ -31,5 +31,5 @@ final class LegacyJson
 - POST: đọc FormData (`$request->input`), file qua `$request->file`.
 - ID trên URL: string/int đều nhận.
 - Serialize model: số → string trong JSON (`"12"`).
-- Endpoint mẫu: xem `.agents/workflows.md` và Flutter `**/constants/*api.dart`.
-- Swagger tag theo app (`App\OpenApi\AppTags`): `Customer (Phone)`, `Projector (TV)`, `Admin`. Route dùng chung gắn nhiều tag.
+- Endpoint mẫu: xem `.agents/workflows/phases.md` và Flutter `**/constants/*api.dart`.
+- Mỗi API mới: skill `build-module` (5 cổng). Swagger tag theo app (`App\OpenApi\AppTags`): `Customer (Phone)`, `Projector (TV)`, `Admin`. Route dùng chung gắn nhiều tag.

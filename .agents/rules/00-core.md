@@ -1,6 +1,7 @@
 # Core
 
 - Chỉ làm **phase hiện tại** trong `PROGRESS.md`. Phase 7 (FCM lệnh) sau khi xong 0–6.
+- **Mọi module/API:** đủ 5 cổng (`workflows.md`) — phân tích 3 app → DB → tối ưu → dev → test. Không code trước cổng 1–3. Không skip test.
 - 3 app Flutter: giữ nguyên path/payload đến khi chủ động sửa (Phase 7 tắt poll).
 - Bảng prefix `tb_`. ID integer, JSON trả **string**.
 - Response: app = chuỗi JSON `text/html` (không sửa Flutter). Swagger (Referer `/api/documentation`) = `application/json` pretty.

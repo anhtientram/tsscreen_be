@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Device;
 use App\Models\Order;
+use App\Models\ResourceFile;
 
 class PacketQuota
 {
@@ -50,5 +51,25 @@ class PacketQuota
             ->count();
 
         return $used < $limit;
+    }
+
+    public static function usedCapacity(int|string $customerId): int
+    {
+        return (int) ResourceFile::query()
+            ->where('customer_id', $customerId)
+            ->where(function ($q): void {
+                $q->whereNull('deleted')->orWhere('deleted', '!=', 'y');
+            })
+            ->sum('file_size');
+    }
+
+    public static function canAddBytes(int|string $customerId, int $bytes): bool
+    {
+        $limit = self::limitCapacity($customerId);
+        if ($limit <= 0) {
+            return false;
+        }
+
+        return (self::usedCapacity($customerId) + $bytes) <= $limit;
     }
 }

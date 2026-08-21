@@ -15,9 +15,7 @@ class AppConfig extends Model
 
     public static function map(): array
     {
-        return Cache::remember('tb_configs_map', 60, function () {
-            return static::query()->pluck('config_value', 'config_key')->all();
-        });
+        return static::query()->pluck('config_value', 'config_key')->all();
     }
 
     public static function putMany(array $values): void

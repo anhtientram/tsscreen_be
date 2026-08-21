@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Controllers\Legacy\CampaignController;
 use App\Http\Controllers\Legacy\ConfigController;
 use App\Http\Controllers\Legacy\CustomerAdminController;
+use App\Http\Controllers\Legacy\DeviceController;
+use App\Http\Controllers\Legacy\DirController;
 use App\Http\Controllers\Legacy\HomeAuthController;
+use App\Http\Controllers\Legacy\MediaController;
 use App\Http\Controllers\Legacy\OrderController;
 use App\Http\Controllers\Legacy\PacketController;
 use App\Http\Controllers\Legacy\SysAccountController;
@@ -37,7 +41,70 @@ Route::prefix('home')->group(function (): void {
 
     Route::get('GetListCustomer', [CustomerAdminController::class, 'index']);
     Route::get('GetListCustomer_Delete', [CustomerAdminController::class, 'deleted']);
+
+    Route::post('CreateDir', [DirController::class, 'create']);
+    Route::get('GetDirCustomer_ById/{customerId}', [DirController::class, 'byCustomer']);
+    Route::get('GetDir_ById/{idDir}', [DirController::class, 'byId']);
+    Route::get('GetDirCustomer_SharedById/{customerId}', [DirController::class, 'sharedToCustomer']);
+    Route::get('GetShareDir_ByCustomerId/{customerId}', [DirController::class, 'sharedFromCustomer']);
+    Route::post('UpDateDir_ById/{idDir}', [DirController::class, 'update']);
+    Route::get('DeleteDir_ById/{idDir}', [DirController::class, 'destroy']);
+    Route::post('InsertDirShare', [DirController::class, 'share']);
+    Route::get('GetSharedCustomerList_ByDirID/{idDir}', [DirController::class, 'sharedCustomers']);
+    Route::get('DeleteDir_shared/{idDir}/{customerId}', [DirController::class, 'deleteShare']);
+    Route::post('UpDateOnOffDeviceDir_ById/{idDir}', [DirController::class, 'updateOnOff']);
+
+    Route::post('CreateDevice', [DeviceController::class, 'create']);
+    Route::get('GetDevices_ByCustomerId/{customerId}', [DeviceController::class, 'byCustomer']);
+    Route::get('GetDevice_ByComputerID/{computerId}', [DeviceController::class, 'byComputerId']);
+    Route::get('GetDevice_ByIdDir/{idDir}', [DeviceController::class, 'byDir']);
+    Route::get('GetDevicesNotBelongAnyDir_ByCustomerId/{customerId}', [DeviceController::class, 'notInDir']);
+    Route::post('UpDateDevice_ById/{computerId}', [DeviceController::class, 'update']);
+    Route::get('DeleteDevice_ById/{computerId}', [DeviceController::class, 'destroy']);
+    Route::get('GetListDeviceOfCamp_ByCampId/{campaignId}', [DeviceController::class, 'ofCampaign']);
+    Route::post('InsertDeviceShare', [DeviceController::class, 'share']);
+    Route::get('GetSharedCustomerList_ByComputeID/{computerId}', [DeviceController::class, 'sharedCustomers']);
+    Route::get('GetDeviceCustomer_SharedById/{customerId}', [DeviceController::class, 'sharedToCustomer']);
+    Route::get('GetSharedDevices_ByCustomerId/{customerId}', [DeviceController::class, 'sharedFromCustomer']);
+    Route::get('DeleteDevice_shared/{computerId}/{customerId}', [DeviceController::class, 'deleteShare']);
+    Route::post('UpdateRomMemory/{computerId}', [DeviceController::class, 'updateRom']);
+    Route::get('UpdateAliveTimeDevice_ById/{computerId}', [DeviceController::class, 'updateAlive']);
+    Route::get('UpdateComputerToken_ById/{computerId}/{token}', [DeviceController::class, 'updateToken'])->where('token', '.*');
+
+    Route::post('CreateCamp', [CampaignController::class, 'create']);
+    Route::post('UpdateCamp_ById/{campaignId}', [CampaignController::class, 'update']);
+    Route::get('DeleteCamp_ById/{campaignId}', [CampaignController::class, 'destroy']);
+    Route::post('ApproveCamp_ById/{campaignId}', [CampaignController::class, 'approve']);
+    Route::get('GetAllCamp_ById/{customerId}', [CampaignController::class, 'allByCustomer']);
+    Route::get('Getcamp_ByComputerId/{computerId}/{status}', [CampaignController::class, 'byComputer']);
+    Route::get('Getcamp_ByDirId/{idDir}/{status}', [CampaignController::class, 'byDir']);
+    Route::get('GetCampToday_ByComputerId/{computerId}/{date}/{flag}', [CampaignController::class, 'today']);
+    Route::post('GetAllRunTimeOfComputer_4', [CampaignController::class, 'runTimesOfComputer']);
+    Route::get('GetTimeRun_ByCampId/{campaignId}', [CampaignController::class, 'timeRuns']);
+    Route::get('GetTimeRun_ByCampId_1/{campaignId}/{idDir}', [CampaignController::class, 'timeRunsWithDir']);
+    Route::post('AddTimeRun_ByCamp', [CampaignController::class, 'addTimeRun']);
+    Route::post('UpdateTimeRun_ByIdRun', [CampaignController::class, 'updateTimeRun']);
+    Route::get('DeleteTimeRun_ByIdRun/{idRun}', [CampaignController::class, 'deleteTimeRun']);
+    Route::get('GetDefaultTimeRun_ByIdDir/{idDir}', [CampaignController::class, 'defaultTimeRun']);
+    Route::get('UpdateDefaultCamp_ById/{campaignId}', [CampaignController::class, 'setDefault']);
+    Route::get('UpdateRunByDefaultCamp_ById/{campaignId}/{used}', [CampaignController::class, 'setRunByDefault']);
+    Route::get('GetCamp_SharedByCustomerId/{customerId}', [CampaignController::class, 'sharedToCustomer']);
+    Route::get('GetShareCamp_ByCustomerId/{customerId}', [CampaignController::class, 'shareCampByCustomer']);
+    Route::post('AddCampaignRunProfile', [CampaignController::class, 'addRunProfile']);
+    Route::post('GetCampaignRunProfile', [CampaignController::class, 'runProfile']);
+    Route::post('GetCampaignRunProfile_Genaral', [CampaignController::class, 'runProfileGeneral']);
+
+    Route::post('checkdir_customer', [MediaController::class, 'checkDir']);
+    Route::post('createdir_customer', [MediaController::class, 'createDir']);
+    Route::post('getfiles_customer', [MediaController::class, 'files']);
+    Route::post('getsizeofdir_customer', [MediaController::class, 'dirSize']);
+    Route::post('uploadfile_customer', [MediaController::class, 'upload']);
+    Route::post('uploadfile_customer_large', [MediaController::class, 'uploadLarge']);
+    Route::post('deletefile_customer', [MediaController::class, 'delete']);
+    Route::post('cancelUpload', [MediaController::class, 'cancel']);
 });
+
+Route::get('uploads/{token}/{filename}', [MediaController::class, 'serve'])->where('filename', '.*');
 
 Route::prefix('sysaccount')->group(function (): void {
     Route::post('login', [SysAccountController::class, 'login']);

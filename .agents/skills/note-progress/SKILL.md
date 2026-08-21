@@ -15,6 +15,7 @@ Sau mỗi việc **xong**, sửa `.agents/PROGRESS.md`:
 ### YYYY-MM-DD — tiêu đề ngắn
 
 - **Done:** ...
+- **Pipeline:** phân tích 3 app / DB / tối ưu / dev / test
 - **Files:** path1, path2
 - **Next:** việc tiếp theo
 - **Notes:** (tuỳ chọn)

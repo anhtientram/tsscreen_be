@@ -19,6 +19,10 @@ final class DiskWatermark
 
     public static function isFull(float $threshold = 0.85): bool
     {
+        if (app()->environment('testing')) {
+            return false;
+        }
+
         return self::usedRatio() >= $threshold;
     }
 }

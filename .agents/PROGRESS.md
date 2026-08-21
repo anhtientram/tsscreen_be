@@ -4,8 +4,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 
 ## Status
 
-- **Current phase:** 3
-- **Last completed:** Swagger chia tag theo 3 app (Customer / Projector / Admin)
+- **Current phase:** 6
+- **Last completed:** Bỏ cache 60s của `GET /config6789.php` — sửa `tb_configs` là GET ra liền
 - **Blocked:** —
 
 ## Phase checklist
@@ -13,13 +13,62 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - [x] 0 Nền (LegacyJson, routes, migrations `tb_*`, config, Swagger)
 - [x] 1 Auth customer + admin
 - [x] 2 Gói / đơn / hạn mức
-- [ ] 3 Dir + device pairing
-- [ ] 4 Campaign + lịch
-- [ ] 5 Media quota + chunk
+- [x] 3 Dir + device pairing
+- [x] 4 Campaign + lịch
+- [x] 5 Media quota + chunk
 - [ ] 6 Notify in-app
 - [ ] 7 Lệnh + Firebase từ server (không poll 5s/10s)
 
+## Đã ship (Phase 0–5)
+
+- **Nền:** Laravel legacy routes, `LegacyJson` (app `text/html` / Swagger JSON), `GET /config6789.php`, Swagger `/api/documentation` tag 3 app, bảng `tb_*` + SQL hosting `database/sql/init_db_d26589bb.sql`.
+- **Auth:** Customer `/home/register|login|OTP|reset|changepass|DeleteUser1|GetInfo|UpdateInfo`; TV `GetListCustomer_Bysericomputer`; Admin `/sysaccount/login` (MD5→bcrypt) + CRUD account. Pass DB = bcrypt, không plaintext/MD5 trần.
+- **Gói/đơn:** Catalog + admin CRUD packet; phone mua/hủy/giao dịch/VietQR stub; admin OrderNew/active (`vaild_date`)/filter; `PacketQuota`.
+- **Dir/TV:** CreateDir (msg=id_dir), share dir, on/off dir; CreateDevice (`seri_computer`, quota `limit_qty`); list Phone/TV/Admin; FCM token + ROM + heartbeat 60s.
+- **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. Chưa gửi VIDEO_FROMCAMP.
+- **Media:** `uploads/{customer_token}/`, path `./uploads/...`; chunk `_large`; quota `limit_capacity` từ `tb_resources`; disk 85%; Range serve; prune `.part*` 24h.
+- **Seed:** admin `admin`/`admin123`, customer `customer@tsscreen.local`/`123456`, 3 gói.
+- **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
+
 ## Log
+
+### 2026-08-21 — Config API không cache tb_configs
+
+- **Done:** `GET /config6789.php` đọc thẳng `tb_configs`. Trước đó `Cache::remember` 60s + `CACHE_STORE=database` nên UPDATE SQL phpMyAdmin vẫn trả `API_SERVER` cũ.
+- **Pipeline:** phân tích 3 app / DB / tối ưu (bảng ~20 dòng, không cache) / dev / test
+- **Files:** `app/Models/AppConfig.php`
+- **Next:** Phase 6 notify
+- **Notes:** App local đọc DB `db_tsscreen`. Splash 3 app vẫn gọi host cũ `config6789.php` trước, rồi mới dùng `API_SERVER`.
+
+### 2026-08-21 — Phase 3+4+5 dir, campaign, media
+
+- **Done:** Pairing TV (CreateDir → CreateDevice quota), campaign lịch TV UTC+7, upload local + chunk + quota. Phân tích 3 app trước khi code (thẻ `.agents/modules/phase3-dir-device.md` … `phase5-media.md`). Test 11 Legacy pass.
+- **Pipeline:** phân tích 3 app / DB (không thêm cột) / tối ưu (with, PacketQuota server, stream, không poll) / dev / test
+- **Files:** `DirController`, `DeviceController`, `CampaignController`, `MediaController`, `routes/legacy.php`, `tests/Feature/LegacyDirDeviceTest.php`, `LegacyCampaignTest.php`, `LegacyMediaTest.php`
+- **Next:** Phase 6 — notify in-app (`Nofity`, InsertNotify)
+- **Notes:** CreateDevice từ chối khi hết `limit_qty`. TV `created_by` numeric. GetAllCamp_ById dùng `camp_list`. Upload `status` 1; `file_size` int. Không FCM lệnh.
+
+### 2026-08-21 — Snapshot Phase 0–2 trên PROGRESS
+
+- **Done:** Ghi rõ đã ship nền/auth/gói; current phase = 3 chưa làm dir/device.
+- **Pipeline:** docs
+- **Files:** `.agents/PROGRESS.md`
+- **Next:** Phase 3 — dir + pairing TV (5 cổng / cụm API)
+
+### 2026-08-21 — Workflows xây dựng: 5 cổng mỗi module/API
+
+- **Done:** Viết lại cách làm: mọi API phải qua phân tích 3 app → database đúng cột cần → tối ưu → dev → test. Skill `build-module`. Phase 0–7 chuyển vào `workflows/phases.md`.
+- **Pipeline:** docs (không phải một endpoint)
+- **Files:** `.agents/workflows.md`, `.agents/workflows/*.md`, `.agents/templates/module-card.md`, `.agents/skills/build-module/`, `AGENTS.md`, rules `06-pipeline`
+- **Next:** Phase 3 dir/device — mỗi cụm API đi đủ 5 cổng
+- **Notes:** Không code trước khi xong cổng 1–3. Thiếu test = chưa xong.
+
+### 2026-08-21 — SQL schema + seed cho hosting `db_d26589bb`
+
+- **Done:** File import phpMyAdmin: `database/sql/init_db_d26589bb.sql` (`USE db_d26589bb`, tạo bảng Laravel + `tb_*`, seed config/admin/customer/3 gói). Nhớ sửa `API_SERVER` thành URL public.
+- **Files:** `database/sql/init_db_d26589bb.sql`, `database/sql/seed.sql`, `database/schema/mysql-schema.sql`
+- **Next:** Phase 3 — dir + pairing TV
+- **Notes:** Admin `admin`/`admin123`. Customer `customer@tsscreen.local`/`123456`. Password trong SQL là bcrypt, không plaintext.
 
 ### 2026-08-20 — Swagger tag theo 3 app
 

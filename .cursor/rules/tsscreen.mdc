@@ -7,7 +7,8 @@ alwaysApply: true
 
 Đọc `AGENTS.md` và `.agents/README.md`.
 
-- Workflows: `.agents/workflows.md`
+- Mỗi API: 5 cổng `.agents/workflows.md` (phân tích 3 app → DB → tối ưu → dev → test). Skill `build-module`.
+- Phase domain: `.agents/workflows/phases.md`
 - Phase hiện tại: `.agents/PROGRESS.md`
 - Rules: `.agents/rules/`
 - Skills: `.agents/skills/`

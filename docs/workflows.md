@@ -1,5 +1,5 @@
 # Workflows
 
-Nguồn sự thật đã chuyển vào [`.agents/workflows.md`](../.agents/workflows.md).
+Cách xây từng API (5 cổng): [`.agents/workflows.md`](../.agents/workflows.md).
 
-Sửa workflows ở đó, không nhân bản file này.
+Backlog phase 0–7: [`.agents/workflows/phases.md`](../.agents/workflows/phases.md).

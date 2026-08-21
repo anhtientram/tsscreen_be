@@ -12,6 +12,317 @@
         }
     ],
     "paths": {
+        "/home/CreateCamp": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone tạo campaign; nhận url_youtobe và url_yotobe",
+                "operationId": "66738697daea6f04df183365be5d5d1f",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateCamp_ById/{campaignId}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Sửa campaign",
+                "operationId": "9dcf57567207a5f67c704c8f04c3ac37",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteCamp_ById/{campaignId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Xóa mềm campaign",
+                "operationId": "1aff8e100cb2ad84268b3ada55953831",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/ApproveCamp_ById/{campaignId}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Duyệt camp approved_yn 0|1|-1",
+                "operationId": "0e2c13221f7050a4c836814a0018682a",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetAllCamp_ById/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone list — key camp_list (lowercase)",
+                "operationId": "aa5149b5108f75a0e25efc0f05cec3b4",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/Getcamp_ByComputerId/{computerId}/{status}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Camp theo TV; status 1|all",
+                "operationId": "617846faad7020508edb19e89f857284",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/Getcamp_ByDirId/{idDir}/{status}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Camp theo dir; /1 = approved",
+                "operationId": "24e9bb09d4cbc986160a5dec9434b8b1",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetCampToday_ByComputerId/{computerId}/{date}/{flag}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV lịch hôm nay UTC+7",
+                "operationId": "a31fc414007cc75fc62ac0633b29600e",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetAllRunTimeOfComputer_4": {
+            "post": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV schedule theo work_date",
+                "operationId": "c91b7be868aae7be2ae9b0d3e2a30745",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetTimeRun_ByCampId/{campaignId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Khung giờ camp_list_time",
+                "operationId": "c24a881f6956dca687a60125c8350769",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetTimeRun_ByCampId_1/{campaignId}/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Time run + fallback default dir",
+                "operationId": "5f16e22f13d238e780a8e0be2fee6fc7",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/AddTimeRun_ByCamp": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Thêm khung giờ",
+                "operationId": "e64ac62b38bf2cd8d0384b7820d685df",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateTimeRun_ByIdRun": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Sửa khung giờ",
+                "operationId": "2de6a43843c8fcbce44903f4c9cf4830",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteTimeRun_ByIdRun/{idRun}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Xóa khung giờ",
+                "operationId": "45af5d9825209d6b8aa0c2dd2c81b776",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDefaultTimeRun_ByIdDir/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Time run camp mặc định của dir",
+                "operationId": "2b130c4e967f43ced00ffa8483d47721",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateDefaultCamp_ById/{campaignId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Đặt camp mặc định dir",
+                "operationId": "3f892d997354cbe76f53a26ac2a911bf",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateRunByDefaultCamp_ById/{campaignId}/{used}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Dùng lịch camp mặc định",
+                "operationId": "88ae5ed42f9b2a5ef5348a0fc14a4344",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetCamp_SharedByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Camp share tới khách",
+                "operationId": "1c30a4b0738efaaae94c315d573e0fb7",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetShareCamp_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Camp khách chia sẻ / nhận",
+                "operationId": "6ed511bbd9f0d810e0a120e8c424c4ae",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/AddCampaignRunProfile": {
+            "post": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV ghi log chạy; map seri_computer nếu computer_id = customer_id",
+                "operationId": "75e3f892ba608c0247844b072ed84481",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetCampaignRunProfile": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Chi tiết lần chạy",
+                "operationId": "0c90b7f609af2ca0e58095fa0a0c7a44",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetCampaignRunProfile_Genaral": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Thống kê theo ngày — typo Genaral",
+                "operationId": "69d5c3e5cb7dd1f6adcb654cf032bb43",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
         "/config6789.php": {
             "get": {
                 "tags": [
@@ -108,6 +419,392 @@
                 "responses": {
                     "200": {
                         "description": "{status:1}"
+                    }
+                }
+            }
+        },
+        "/home/CreateDevice": {
+            "post": {
+                "tags": [
+                    "Projector (TV)",
+                    "Customer (Phone)"
+                ],
+                "summary": "TV pairing — seri_computer, quota limit_qty",
+                "operationId": "dd66e2b8bd095f9ca1a3ba072c500ec5",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDevices_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV list device của khách",
+                "operationId": "7dce3f68cae57be163ad3cc1a519ac3b",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDevice_ByComputerID/{computerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Một thiết bị",
+                "operationId": "6b791f883069cb7908a89fc2e4282a71",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDevice_ByIdDir/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Device trong dir (Phone + Admin)",
+                "operationId": "97a67b5800747f123054a9f041e1067a",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDevicesNotBelongAnyDir_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Device chưa gán dir",
+                "operationId": "15516eb57a7351060f51128f9ef9fcb9",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpDateDevice_ById/{computerId}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Cập nhật device / gán dir",
+                "operationId": "535584718fd85103e7577d87bc7ecdf3",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteDevice_ById/{computerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Xóa mềm device",
+                "operationId": "b2f36e05cf3b540cc710dcd8fe1131fc",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetListDeviceOfCamp_ByCampId/{campaignId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Device của camp — key Dir_list",
+                "operationId": "0954b2bd982be747f668d03b372effb8",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/InsertDeviceShare": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Chia sẻ device",
+                "operationId": "d86a5fb33f24064bc5ee7822b0027247",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetSharedCustomerList_ByComputeID/{computerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Typo ComputeID — khách được share device",
+                "operationId": "e43d5d72c3ec554b0a2c333bf9efce5a",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDeviceCustomer_SharedById/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Device được share tới khách",
+                "operationId": "609ccb12a4a5167881f35608996ec828",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetSharedDevices_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Device khách đã chia sẻ đi",
+                "operationId": "6fa769d567498f0a78e0e0e21d2abbc5",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteDevice_shared/{computerId}/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Hủy share device",
+                "operationId": "8f66ff15b89d6f7cfd92af85fed6aa93",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateRomMemory/{computerId}": {
+            "post": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV heartbeat ROM",
+                "operationId": "6d071875db898d46ccbab4694d17f63d",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateComputerToken_ById/{computerId}/{token}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV FCM token",
+                "operationId": "a21a73ac608323683ddd1cfdc63ec66e",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpdateAliveTimeDevice_ById/{computerId}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "Heartbeat 60s",
+                "operationId": "07c8b1c09955e3eb9cbc0e05b3da623e",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/CreateDir": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone tạo nhóm thiết bị; msg = id_dir",
+                "operationId": "c91e532cc63aa5ab9a2df929fcc091ef",
+                "responses": {
+                    "200": {
+                        "description": "status 1 msg id_dir"
+                    }
+                }
+            }
+        },
+        "/home/GetDirCustomer_ById/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)",
+                    "Admin"
+                ],
+                "summary": "Dir của khách (Phone + TV + Admin)",
+                "operationId": "28e5cd297d110e2f77ca926966ff5588",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDir_ById/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Một dir",
+                "operationId": "a1a884d85e054a73b2b6d5bba9e62c05",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetDirCustomer_SharedById/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)"
+                ],
+                "summary": "Dir được chia sẻ tới khách",
+                "operationId": "7c6dfb729b5ce33cc49850538d269194",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetShareDir_ByCustomerId/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Dir khách đã chia sẻ đi",
+                "operationId": "1a278cb311d325928dbc9159bb30f138",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpDateDir_ById/{idDir}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Sửa tên/loại dir",
+                "operationId": "d433e9075a4eafbe3e000a5e2a33683d",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteDir_ById/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Xóa mềm dir",
+                "operationId": "8bb47d31336d1885a704cf301eaa07d3",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/InsertDirShare": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Chia sẻ dir",
+                "operationId": "ea4966a74ebd4e405f6085e81707a31c",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetSharedCustomerList_ByDirID/{idDir}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Danh sách khách được share dir",
+                "operationId": "9df8be5deefc76a1bc570f8dca810871",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/DeleteDir_shared/{idDir}/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Hủy chia sẻ dir",
+                "operationId": "60e9e962b530d0e823bf9c8d1939aed5",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/UpDateOnOffDeviceDir_ById/{idDir}": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Giờ bật/tắt theo dir",
+                "operationId": "debb7d3b0f5cb441e59bdfa01b1266c5",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
                     }
                 }
             }
@@ -481,6 +1178,133 @@
                 "responses": {
                     "200": {
                         "description": "JSON {list:[{customer_id,...}]}"
+                    }
+                }
+            }
+        },
+        "/home/checkdir_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Thư mục media theo customer_token",
+                "operationId": "cb62bff47a81fb530cd3312d304e73fb",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/createdir_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Tạo folder uploads/{token}",
+                "operationId": "ddb1b456ff47fac77f8f66468c1d8b99",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/getfiles_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "file_list — bỏ .part*",
+                "operationId": "3d44a3627d55416676befa27ce099990",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/getsizeofdir_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "totalsize string — quota từ tb_resources",
+                "operationId": "cccaaa94119943a6ef57586277eafb3f",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/uploadfile_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Upload nhỏ ≤200MB client; server max 110MB/request",
+                "operationId": "ea1dca2c70ac36aeeb2a7aacc26fe110",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/uploadfile_customer_large": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Chunk 100MB; ghép khi đủ total_chunks",
+                "operationId": "9b20ddbd9a07369efa8627c491df65ff",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/deletefile_customer": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Xóa file media",
+                "operationId": "657ed7635b0ee7aafef872ed0e56b01c",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/cancelUpload": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Xóa .part* dở",
+                "operationId": "0143c8cb9070543f42b120c1d02abde6",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/uploads/{token}/{filename}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)",
+                    "Customer (Phone)"
+                ],
+                "summary": "Serve media HTTP Range (TV seek)",
+                "operationId": "af9d0cd93a8e0492a59ec8b3869f97ab",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
                     }
                 }
             }

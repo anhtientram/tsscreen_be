@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Gỡ rewrite `/uploads/` → `index.php` (loop Wasmer)
+- **Last completed:** phpix — không rewrite `/uploads/` (loop Wasmer)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — phpix rewrite loop trên file tĩnh
+
+- **Done:** Log `phpix::server::htaccess rewrite loop` path `/uploads/...jpg`. Wasmer không nhận `!-f` rồi rewrite lặp cùng URL. **Không** `RewriteRule` nào khớp `/uploads/` (kể cả `-` / `index.php`). Xóa `public/uploads/.htaccess`. MIME bằng `AddType` ở `public/.htaccess`.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / —
+- **Files:** `public/.htaccess`, xóa `public/uploads/.htaccess`
+- **Next:** Deploy; HEAD jpg không còn loop, `Content-Type: image/jpeg`.
+- **Notes:** Rule `^uploads/ index.php` và `^uploads/ -` đều loop trên phpix vì path không đổi / bị apply lại.
 
 ### 2026-08-21 — Rewrite loop `/uploads/`
 

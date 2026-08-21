@@ -1,7 +1,9 @@
 -- TS Screen schema + seed for hosting DB db_d26589bb (không CREATE DATABASE)
 -- Import phpMyAdmin / mysql client, chọn database db_d26589bb trước hoặc giữ USE bên dưới.
 -- DROP TABLE IF EXISTS: xóa bảng trùng tên rồi tạo lại.
--- Sửa API_SERVER trong phần seed thành URL public (https://xxx.wasmer.app).
+-- Sửa API_SERVER trong phần seed thành URL public (https://..., không slash cuối).
+-- Bảng Phase 3–5 đã có trong file này (tb_dirs, tb_devices, tb_campaigns, tb_resources, …).
+-- Chỉ seed: import tiếp database/sql/seed.sql nếu đã tạo bảng rồi.
 
 USE `db_d26589bb`;
 
@@ -559,21 +561,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (3,'0001_01_01_0000
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (4,'2026_08_20_000001_create_tb_tables',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (5,'2026_08_20_000002_add_limits_to_tb_orders',1);
 
--- ========== SEED ==========
+-- ========== SEED (cùng nội dung database/sql/seed.sql) ==========
+-- Sửa API_SERVER thành URL public. Admin: admin/admin123. Phone: customer@tsscreen.local/123456
+-- Phase 3–5: dir Demo + đơn Gói cơ bản pay=1. Không seed device/campaign/file.
 
--- Seed demo (chạy sau khi tạo bảng)
--- Admin app: username admin / password admin123 (app gửi MD5, DB lưu bcrypt của MD5)
--- Phone: customer@tsscreen.local / 123456
-
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '0001_01_01_000000_create_users_table', 1),
-(2, '0001_01_01_000001_create_cache_table', 1),
-(3, '0001_01_01_000002_create_jobs_table', 1),
-(4, '2026_08_20_000001_create_tb_tables', 1),
-(5, '2026_08_20_000002_add_limits_to_tb_orders', 1)
-ON DUPLICATE KEY UPDATE `migration` = VALUES(`migration`);
-
--- Đổi API_SERVER thành URL public hosting (https://....wasmer.app, không slash cuối)
 INSERT INTO `tb_configs` (`config_key`, `config_value`) VALUES
 ('COMPANY_NAME', 'TS Screen'),
 ('COMPANY_ADDRESS', ''),
@@ -581,7 +572,7 @@ INSERT INTO `tb_configs` (`config_key`, `config_value`) VALUES
 ('REPRESENTATIVE', ''),
 ('EMAIL', 'hello@example.com'),
 ('TAX_CODE', ''),
-('API_SERVER', 'https://YOUR-WASMER-HOST'),
+('API_SERVER', 'https://YOUR-PUBLIC-HOST'),
 ('GUIDE_LINK', ''),
 ('ACTIVE_FLAG', '1'),
 ('show_payment', '1'),
@@ -608,13 +599,45 @@ ON DUPLICATE KEY UPDATE `config_value` = VALUES(`config_value`);
 
 INSERT INTO `tb_accounts` (`username`, `password`, `email`, `phone_number`, `user_type`, `deleted`, `created_date`) VALUES
 ('admin', '$2y$12$U1uK5DSkKC557gWp91Q.xexmKA8LGbGBgDPn8wA1Djh7ZIYl4GKne', 'admin@tsscreen.local', '', '1', 'n', NOW())
-ON DUPLICATE KEY UPDATE `email` = VALUES(`email`);
+ON DUPLICATE KEY UPDATE
+  `password` = VALUES(`password`),
+  `email` = VALUES(`email`),
+  `user_type` = VALUES(`user_type`),
+  `deleted` = 'n';
 
 INSERT INTO `tb_users` (`customer_name`, `phone_number`, `email`, `password`, `customer_token`, `login_with`, `status`, `deleted`, `created_date`) VALUES
 ('Demo Customer', '0900000000', 'customer@tsscreen.local', '$2y$12$/Hwi2J4HaP2o0ETEmwfKhem/WLwUWL8ucZBh0t5aG9qbJht/I5rsi', '01demo0customer0token0tsscreen', 'email', 'y', 'n', NOW())
-ON DUPLICATE KEY UPDATE `customer_name` = VALUES(`customer_name`);
+ON DUPLICATE KEY UPDATE
+  `customer_name` = VALUES(`customer_name`),
+  `password` = VALUES(`password`),
+  `status` = 'y',
+  `deleted` = 'n';
 
-INSERT INTO `tb_packets` (`name_packet`, `price`, `price_6_month`, `price_12_month`, `day_qty`, `month_qty`, `year_qty`, `is_trial`, `is_business`, `detail`, `description`, `picture`, `limit_qty`, `limit_capacity`, `deleted`, `created_date`) VALUES
+INSERT INTO `tb_packets` (
+  `name_packet`, `price`, `price_6_month`, `price_12_month`,
+  `day_qty`, `month_qty`, `year_qty`, `is_trial`, `is_business`,
+  `detail`, `description`, `picture`, `limit_qty`, `limit_capacity`, `deleted`, `created_date`
+) VALUES
 ('Gói dùng thử', '0', '0', '0', '7', '0', '0', '1', '0', 'Dùng thử 7 ngày, 1 TV', 'Gói dùng thử', '', '1', '104857600', 'n', NOW()),
 ('Gói cơ bản', '99000', '499000', '899000', '0', '1', '0', '0', '0', '2 TV, 1GB media', 'Gói cơ bản', '', '2', '1073741824', 'n', NOW()),
 ('Gói doanh nghiệp', '299000', '1599000', '2999000', '0', '1', '0', '0', '1', '10 TV, 10GB media', 'Gói doanh nghiệp', '', '10', '10737418240', 'n', NOW());
+
+SET @cid := (SELECT `customer_id` FROM `tb_users` WHERE `email` = 'customer@tsscreen.local' LIMIT 1);
+SET @pid := (SELECT `packet_id` FROM `tb_packets` WHERE `name_packet` = 'Gói cơ bản' LIMIT 1);
+
+INSERT INTO `tb_dirs` (`name_dir`, `customer_id`, `type_dir`, `deleted`, `created_by`, `created_date`)
+VALUES ('Demo', @cid, 'group', 'n', CAST(@cid AS CHAR), NOW());
+
+INSERT INTO `tb_orders` (
+  `packet_id`, `customer_id`, `packet_code`, `name_packet`, `price`,
+  `price_6_month`, `price_12_month`, `day_qty`, `month_qty`, `year_qty`,
+  `pay_month`, `is_trial`, `is_business`, `detail`, `description`,
+  `pay`, `register_date`, `payment_date`, `valid_date`, `expire_date`,
+  `limit_qty`, `limit_capacity`, `deleted`, `created_date`
+) VALUES (
+  @pid, @cid, CONCAT('PK', @pid), 'Gói cơ bản', '99000',
+  '499000', '899000', '0', '1', '0',
+  '1', '0', '0', '2 TV, 1GB media', 'Gói cơ bản',
+  '1', CURDATE(), CURDATE(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 MONTH),
+  '2', '1073741824', 'n', NOW()
+);

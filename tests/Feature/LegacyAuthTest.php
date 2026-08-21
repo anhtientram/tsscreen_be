@@ -64,6 +64,25 @@ class LegacyAuthTest extends TestCase
         $this->assertNotEquals('secret', Customer::query()->first()->getRawOriginal('password'));
     }
 
+    public function test_customer_login_with_phone_number(): void
+    {
+        $this->post('/home/register', [
+            'customer_name' => 'A',
+            'phone_number' => '0900000000',
+            'email' => 'a@test.com',
+            'password' => 'secret',
+        ]);
+
+        $login = $this->post('/home/login', [
+            'email' => '0900000000',
+            'password' => 'secret',
+        ]);
+        $info = json_decode($login->getContent(), true);
+        $this->assertSame(1, $info['status']);
+        $this->assertSame('0900000000', $info['info'][0]['phone_number']);
+        $this->assertSame('a@test.com', $info['info'][0]['email']);
+    }
+
     public function test_admin_login_with_md5_password(): void
     {
         Account::query()->create([

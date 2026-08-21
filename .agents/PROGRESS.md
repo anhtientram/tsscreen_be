@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Bỏ cache 60s của `GET /config6789.php` — sửa `tb_configs` là GET ra liền
+- **Last completed:** Login customer nhận email hoặc SĐT (app gửi key `email`)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,22 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Login customer bằng SĐT
+
+- **Done:** `/home/login` tìm `email` hoặc `phone_number`. App Phone label «Email / Số điện thoại» vẫn POST field `email`.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / test
+- **Files:** `app/Http/Controllers/Legacy/HomeAuthController.php`, `tests/Feature/LegacyAuthTest.php`
+- **Next:** Phase 6 notify
+- **Notes:** Seed: `0900000000` + `123456` hoặc `customer@tsscreen.local` + `123456`.
+
+### 2026-08-21 — SQL hosting seed Phase 0–5
+
+- **Done:** Cập nhật `database/sql/seed.sql` + đoạn seed trong `init_db_d26589bb.sql`: config, admin, customer, 3 gói, dir Demo, đơn Gói cơ bản pay=1. Phase 3–5 không thêm cột.
+- **Pipeline:** docs / DB / — / — / —
+- **Files:** `database/sql/seed.sql`, `database/sql/init_db_d26589bb.sql`
+- **Next:** Phase 6 notify
+- **Notes:** Import xong phải UPDATE `API_SERVER`. Admin `admin`/`admin123`, phone `customer@tsscreen.local`/`123456`.
 
 ### 2026-08-21 — Config API không cache tb_configs
 

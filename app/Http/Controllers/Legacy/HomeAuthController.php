@@ -64,12 +64,12 @@ class HomeAuthController extends Controller
 
     #[OA\Post(
         path: '/home/login',
-        summary: 'Customer login (plaintext; empty password = Google/Apple). Phone + TV.',
+        summary: 'Customer login (plaintext). Field email = email hoặc SĐT. Empty password = Google/Apple. Phone + TV.',
         tags: [AppTags::CUSTOMER, AppTags::PROJECTOR],
         requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(
             mediaType: 'multipart/form-data',
             schema: new OA\Schema(required: ['email'], properties: [
-                new OA\Property(property: 'email', type: 'string'),
+                new OA\Property(property: 'email', type: 'string', description: 'Email hoặc số điện thoại'),
                 new OA\Property(property: 'password', type: 'string'),
                 new OA\Property(property: 'fcm_token', type: 'string'),
             ])
@@ -78,10 +78,14 @@ class HomeAuthController extends Controller
     )]
     public function login(Request $request)
     {
-        $email = trim((string) $request->input('email'));
+        $login = trim((string) $request->input('email'));
         $password = (string) $request->input('password', '');
 
-        $customer = Customer::query()->where('email', $email)->first();
+        $customer = Customer::query()
+            ->where(function ($q) use ($login): void {
+                $q->where('email', $login)->orWhere('phone_number', $login);
+            })
+            ->first();
 
         if (! $customer || ! $customer->isActive() || ! $customer->passwordMatches($password)) {
             return LegacyJson::send([

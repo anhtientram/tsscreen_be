@@ -5,8 +5,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Wasmer — log media ra stderr; bỏ chặn disk ảo “đầy”
-- **Blocked:** —
+- **Last completed:** Hướng dẫn `volumes` trên app.yaml Wasmer tsscreen_be
+- **Blocked:** Chưa deploy volume `/app/public/uploads`
 
 ## Phase checklist
 
@@ -31,6 +31,22 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — app.yaml Wasmer thiếu volumes
+
+- **Done:** Config `anhtientram/tsscreen_be` (phpix Laravel) chưa có Volume. Thêm `volumes: name uploads, mount /app/public/uploads`.
+- **Pipeline:** — / DB (không đổi) / — / — / —
+- **Files:** —
+- **Next:** Paste yaml trên dashboard → deploy → tab Storage hiện volume → upload lại ảnh.
+- **Notes:** Không nhét `volumes` vào `annotations`.
+
+### 2026-08-21 — Wasmer Storage: no storage configured
+
+- **Done:** Dashboard Storage trống = chưa Volume. Upload ghi disk ephemeral, deploy/idle là mất. Volume tạo qua `app.yaml` rồi deploy, không phải nút trên tab trống. Mount: `/app/public/uploads` (phpix `document_root=/app/public`).
+- **Pipeline:** phân tích 3 app / DB (không đổi) / — / — / —
+- **Files:** —
+- **Next:** Thêm volume trên Wasmer, deploy, upload lại ảnh. Tab Storage sẽ hiện volume.
+- **Notes:** Docs: https://docs.wasmer.io/edge/guides/volumes/
 
 ### 2026-08-21 — Upload không thấy log trên Wasmer
 

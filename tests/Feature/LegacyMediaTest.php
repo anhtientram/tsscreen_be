@@ -62,11 +62,25 @@ class LegacyMediaTest extends TestCase
         $this->assertSame('./uploads/'.$token.'/clip.mp4', $body['path_file']['path']);
         $this->assertIsInt($body['path_file']['file_size']);
 
-        $this->call('HEAD', '/uploads/'.$token.'/clip.mp4')->assertOk();
+        $head = $this->call('HEAD', '/uploads/'.$token.'/clip.mp4');
+        $head->assertOk();
+        $this->assertStringStartsWith('video/', (string) $head->headers->get('Content-Type'));
+        $this->assertGreaterThan(0, (int) $head->headers->get('Content-Length'));
+
+        $jpg = $this->post('/home/uploadfile_customer', [
+            'name_dir' => $token,
+            'customer_id' => $customer->customer_id,
+            'fileupload' => UploadedFile::fake()->image('shot.jpg'),
+        ]);
+        $this->assertSame(1, json_decode($jpg->getContent(), true)['status']);
+        $jpgHead = $this->call('HEAD', '/uploads/'.$token.'/shot.jpg');
+        $jpgHead->assertOk();
+        $this->assertStringStartsWith('image/', (string) $jpgHead->headers->get('Content-Type'));
+
         $this->get('/uploads/'.$token.'/clip.mp4')->assertOk();
 
         $files = json_decode($this->post('/home/getfiles_customer', ['name_dir' => $token])->getContent(), true);
-        $this->assertCount(1, $files['file_list']);
+        $this->assertCount(2, $files['file_list']);
 
         $size = json_decode($this->post('/home/getsizeofdir_customer', ['name_dir' => $token])->getContent(), true);
         $this->assertIsString($size['totalsize']);

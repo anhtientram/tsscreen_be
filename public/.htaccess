@@ -1,3 +1,13 @@
+<IfModule mod_mime.c>
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+    AddType image/webp .webp
+    AddType image/gif .gif
+    AddType video/mp4 .mp4
+    AddType video/quicktime .mov
+    AddType video/webm .webm
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -17,6 +27,9 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
+
+    # Media: luôn vào Laravel để HEAD có Content-Type image/* | video/* (Phone/TV isImageUrlValid)
+    RewriteRule ^uploads/ index.php [L,QSA]
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d

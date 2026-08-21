@@ -12,6 +12,8 @@ Phase: 5
 
 Typo / exception: path `./uploads/{token}/file`; file_size **int** (json num); skip `.part*`; status true **or** 1.
 
+HEAD `/uploads/...`: Phone `isImageUrlValid` / `isVideoUrlValid` cần HTTP 200 **và** `Content-Type` bắt đầu `image/` hoặc `video/` (không `octet-stream` / `text/html`). `content-length` > 0.
+
 ## Cổng 2 — Database
 
 Bảng: `tb_resources`, `tb_upload_chunks`  

@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Media HEAD `/uploads/...` + ghi file vào `public/uploads` (Wasmer 404)
+- **Last completed:** HEAD media — `Content-Type` `image/*` / `video/*` (app isImageUrlValid)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — HEAD 200 nhưng app vẫn lỗi (Content-Type)
+
+- **Done:** Phone/TV `isImageUrlValid` / `isVideoUrlValid` cần HEAD 200 **và** `Content-Type` bắt đầu `image/` hoặc `video/` — không `octet-stream`/`text/html`. HEAD trả MIME theo đuôi file (`.jpg`→`image/jpeg`, `.mp4`→`video/mp4`) + `Content-Length`. Rewrite `/uploads/` vào Laravel; AddType MIME. Admin không HEAD.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / test
+- **Files:** `MediaController.php`, `public/.htaccess`, `public/uploads/.htaccess`, `tests/Feature/LegacyMediaTest.php`
+- **Next:** Deploy Wasmer, HEAD lại file `.jpg` phải thấy `Content-Type: image/jpeg`. Phase 6 notify (`GetNofity*`) vẫn 404.
+- **Notes:** `response('', 200)` làm Laravel ghi `text/html` + `Content-Length: 0`.
 
 ### 2026-08-21 — HEAD /uploads 404 trên Wasmer
 

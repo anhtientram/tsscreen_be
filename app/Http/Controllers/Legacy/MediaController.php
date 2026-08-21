@@ -11,12 +11,12 @@ use App\Services\PacketQuota;
 use App\Support\DiskWatermark;
 use App\Support\LegacyJson;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaController extends Controller
 {
@@ -226,26 +226,40 @@ class MediaController extends Controller
     }
 
     #[OA\Get(path: '/uploads/{token}/{filename}', summary: 'GET + HEAD media (app HEAD lấy content-length)', tags: [AppTags::PROJECTOR, AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'file / HEAD length')])]
-    public function serve(Request $request, string $token, string $filename): BinaryFileResponse|Response
+    public function serve(Request $request, string $token, string $filename): BinaryFileResponse|StreamedResponse
     {
         $filename = $this->safeName(urldecode($filename));
         $relative = 'uploads/'.$token.'/'.$filename;
-        $full = Storage::disk('uploads')->path($relative);
-        if (! is_file($full)) {
+        $disk = Storage::disk('uploads');
+        if (! $disk->exists($relative)) {
             abort(404);
         }
 
+        $mime = $this->mimeFromName($filename);
+        $size = (int) $disk->size($relative);
+        if ($size < 1) {
+            $size = (int) ResourceFile::query()
+                ->where('name_dir', $token)
+                ->where('name', $filename)
+                ->value('file_size');
+        }
         $headers = [
+            'Content-Type' => $mime,
+            'Content-Length' => (string) $size,
             'Accept-Ranges' => 'bytes',
-            'Content-Length' => (string) filesize($full),
-            'Content-Type' => mime_content_type($full) ?: 'application/octet-stream',
         ];
 
         if ($request->isMethod('HEAD')) {
-            return response('', 200, $headers);
+            return new StreamedResponse(static fn () => null, 200, $headers);
         }
 
-        return response()->file($full, $headers);
+        $response = response()->file($disk->path($relative), [
+            'Accept-Ranges' => 'bytes',
+            'Content-Length' => (string) $size,
+        ]);
+        $response->headers->set('Content-Type', $mime);
+
+        return $response;
     }
 
     private function withUploadLock(Request $request, \Closure $then)
@@ -344,16 +358,7 @@ class MediaController extends Controller
         }
         UploadChunk::query()->where('name_dir', $token)->where('filename', $filename)->delete();
 
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-        $mime = match ($ext) {
-            'mp4' => 'video/mp4',
-            'mov' => 'video/quicktime',
-            'webm' => 'video/webm',
-            'png' => 'image/png',
-            'webp' => 'image/webp',
-            'gif' => 'image/gif',
-            default => 'image/jpeg',
-        };
+        $mime = $this->mimeFromName($filename);
 
         return $this->storeResource($customer, $token, $filename, $size, $mime);
     }
@@ -425,5 +430,21 @@ class MediaController extends Controller
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
 
         return in_array($ext, self::EXT_WHITELIST, true);
+    }
+
+    private function mimeFromName(string $name): string
+    {
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+        return match ($ext) {
+            'mp4' => 'video/mp4',
+            'mov' => 'video/quicktime',
+            'webm' => 'video/webm',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'gif' => 'image/gif',
+            'jpg', 'jpeg' => 'image/jpeg',
+            default => 'application/octet-stream',
+        };
     }
 }

@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** Login customer nhận email hoặc SĐT (app gửi key `email`)
+- **Last completed:** CreateCamp: `default_yn`/`run_by_default_yn` rỗng → `'0'` (MySQL hosting NOT NULL)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Fix CreateCamp default_yn null trên hosting
+
+- **Done:** App gửi `default_yn` / `run_by_default_yn` rỗng → MySQL `NOT NULL` 500. Chuẩn hóa thành `'0'`. CreateCamp lỗi DB trả `status -2` JSON, không HTML 500.
+- **Pipeline:** phân tích 3 app / DB (không đổi schema) / tối ưu / dev / test
+- **Files:** `app/Http/Controllers/Legacy/CampaignController.php`, `tests/Feature/LegacyCampaignTest.php`
+- **Next:** Deploy hosting rồi thử lại CreateCamp
+- **Notes:** Payload phone: `url_youtobe` + `url_yotobe`, `approved_yn=1`, `id_dir=1`.
 
 ### 2026-08-21 — Login customer bằng SĐT
 

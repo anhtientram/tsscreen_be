@@ -24,10 +24,15 @@ class CampaignController extends Controller
             return LegacyJson::send(['status' => -2, 'msg' => 'Không tìm thấy khách hàng']);
         }
 
-        $camp = Campaign::query()->create($this->attrsFromRequest($request, [
-            'approved_yn' => $request->input('approved_yn', '0'),
-            'deleted' => 'n',
-        ]));
+        try {
+            $camp = Campaign::query()->create($this->attrsFromRequest($request, [
+                'deleted' => 'n',
+            ]));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return LegacyJson::send(['status' => -2, 'msg' => 'Không tạo được chiến dịch']);
+        }
 
         return LegacyJson::send(['status' => 1, 'msg' => LegacyJson::str($camp->campaign_id)]);
     }
@@ -423,30 +428,30 @@ class CampaignController extends Controller
 
     private function attrsFromRequest(Request $request, array $extra = []): array
     {
-        $url = $request->input('url_youtobe', $request->input('url_yotobe'));
+        $url = $request->input('url_youtobe') ?: $request->input('url_yotobe');
         $computerId = $request->input('computer_id');
         $idDir = $request->input('id_dir');
 
         return array_merge([
             'campaign_name' => $request->input('campaign_name'),
-            'status' => $request->input('status'),
-            'video_id' => $request->input('video_id'),
-            'from_date' => $request->input('from_date'),
-            'to_date' => $request->input('to_date'),
-            'from_time' => $request->input('from_time'),
-            'to_time' => $request->input('to_time'),
-            'days_of_week' => $request->input('days_of_week'),
-            'video_type' => $request->input('video_type'),
-            'url_youtobe' => $url,
-            'url_usp' => $request->input('url_usp'),
+            'status' => $request->input('status') ?: '1',
+            'video_id' => $request->input('video_id') ?: '',
+            'from_date' => $request->input('from_date') ?: '',
+            'to_date' => $request->input('to_date') ?: '',
+            'from_time' => $request->input('from_time') ?: '',
+            'to_time' => $request->input('to_time') ?: '',
+            'days_of_week' => $request->input('days_of_week') ?: '',
+            'video_type' => $request->input('video_type') ?: 'url',
+            'url_youtobe' => $url ?: '',
+            'url_usp' => $request->input('url_usp') ?: '',
             'customer_id' => $request->input('customer_id'),
             'computer_id' => ($computerId === '' || $computerId === null) ? null : $computerId,
             'id_dir' => ($idDir === '' || $idDir === null) ? null : $idDir,
-            'id_computer' => $request->input('id_computer'),
-            'video_duration' => $request->input('video_duration'),
-            'approved_yn' => $request->input('approved_yn', '0'),
-            'default_yn' => $request->input('default_yn', '0'),
-            'run_by_default_yn' => $request->input('run_by_default_yn', '0'),
+            'id_computer' => $request->input('id_computer') ?: '',
+            'video_duration' => $request->input('video_duration') ?: '',
+            'approved_yn' => $this->flag($request, 'approved_yn'),
+            'default_yn' => $this->flag($request, 'default_yn'),
+            'run_by_default_yn' => $this->flag($request, 'run_by_default_yn'),
         ], $extra);
     }
 
@@ -503,6 +508,17 @@ class CampaignController extends Controller
         }
 
         return false;
+    }
+
+    private function flag(Request $request, string $key, string $default = '0'): string
+    {
+        $value = $request->input($key, $default);
+
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        return LegacyJson::str($value);
     }
 
     private function scheduleRow(Campaign $camp, ?string $fromTime, ?string $toTime): array

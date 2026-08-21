@@ -138,6 +138,52 @@ class LegacyCampaignTest extends TestCase
         $this->assertSame('1', Campaign::query()->first()->approved_yn);
     }
 
+    public function test_create_camp_empty_flags_become_zero(): void
+    {
+        $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();
+        $idDir = json_decode($this->post('/home/CreateDir', [
+            'name_dir' => 'Hall',
+            'customer_id' => $customer->customer_id,
+            'type_dir' => 'g',
+        ])->getContent(), true)['msg'];
+
+        $create = $this->post('/home/CreateCamp', [
+            'campaign_id' => '',
+            'campaign_name' => 'image_picker_demo.jpg',
+            'status' => '1',
+            'video_id' => '',
+            'from_date' => '',
+            'to_date' => '',
+            'from_time' => '',
+            'to_time' => '',
+            'days_of_week' => '',
+            'video_type' => 'url',
+            'url_youtobe' => 'https://example.com/a.jpg',
+            'url_yotobe' => 'https://example.com/a.jpg',
+            'url_usp' => '',
+            'customer_id' => $customer->customer_id,
+            'computer_id' => '',
+            'id_dir' => $idDir,
+            'id_computer' => '',
+            'video_duration' => '15',
+            'approved_yn' => '1',
+            'default_yn' => '',
+            'run_by_default_yn' => '',
+            'accept_count' => '',
+            'accept_customers' => '',
+            'is_owner' => '',
+            'name_dir' => '',
+            'isNew' => '',
+        ]);
+        $body = json_decode($create->getContent(), true);
+        $this->assertSame(1, $body['status']);
+        $camp = Campaign::query()->first();
+        $this->assertSame('0', $camp->default_yn);
+        $this->assertSame('0', $camp->run_by_default_yn);
+        $this->assertSame('1', $camp->approved_yn);
+        $this->assertNull($camp->computer_id);
+    }
+
     private function activateBasic(Customer $customer): void
     {
         $packet = Packet::query()->where('name_packet', 'Gói cơ bản')->first();

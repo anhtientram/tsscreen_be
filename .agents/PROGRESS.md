@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** 6
-- **Last completed:** HEAD media — `Content-Type` `image/*` / `video/*` (app isImageUrlValid)
+- **Last completed:** Gỡ rewrite `/uploads/` → `index.php` (loop Wasmer)
 - **Blocked:** —
 
 ## Phase checklist
@@ -31,6 +31,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
 
 ## Log
+
+### 2026-08-21 — Rewrite loop `/uploads/`
+
+- **Done:** Gỡ `RewriteRule ^uploads/ index.php` — Wasmer báo rewrite loop. File có sẵn thì serve static + `AddType` MIME; không có thì mới vào Laravel (`!-f`).
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu / dev / —
+- **Files:** `public/.htaccess`
+- **Next:** Deploy lại; HEAD `.jpg` phải `image/jpeg`, không còn loop.
+- **Notes:** Ép mọi `/uploads/` vào `index.php` khi file đã tồn tại làm Apache/Wasmer rewrite lặp.
 
 ### 2026-08-21 — HEAD 200 nhưng app vẫn lỗi (Content-Type)
 

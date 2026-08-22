@@ -9,7 +9,7 @@ Mục tiêu: thiết kế **không đốt hosting** khi nhiều TV/phone.
 - Không poll lệnh 5s/10s. Heartbeat `UpdateAliveTimeDevice_ById` 60s được.
 - Ghi/đọc file: stream, không load cả file RAM (Phase 5).
 - List lớn: chỉ field app parse; ID string nhưng không dump blob.
-- Endpoint dễ spam (GetNewCommands, GetInfoCommand): rate-limit khi tới Phase 7.
+- Endpoint dễ spam (GetNewCommands, GetInfoCommand): Phase 7 user chọn TV poll 10s — **không** rate-limit 30s. Query chỉ pending + claim `sync`.
 - Admin `.trim()` trên `detail` → luôn string `''`, không `null`.
 
 ## Ghi trên thẻ

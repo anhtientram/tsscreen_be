@@ -97,6 +97,6 @@ Thiếu test pass → không note “xong”, không sang API tiếp theo.
 
 ## Phase product (không thay pipeline)
 
-0 Nền → 1 Auth → 2 Gói/đơn → 3 Dir/device → 4 Campaign → 5 Media → 6 Notify → **7 Lệnh + FCM server (không poll)**
+0 Nền → 1 Auth → 2 Gói/đơn → 3 Dir/device → 4 Campaign → 5 Media → 6 Notify → **7 Lệnh DB (TV tự GET, Laravel không FCM)**
 
 Chi tiết sequence từng phase: [workflows/phases.md](workflows/phases.md).

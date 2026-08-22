@@ -4,8 +4,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 
 ## Status
 
-- **Current phase:** 7
-- **Last completed:** Phase 6 notify in-app (không FCM)
+- **Current phase:** —
+- **Last completed:** Phase 7 lệnh API cũ (Laravel không FCM)
 - **Blocked:** —
 
 ## Phase checklist
@@ -17,9 +17,9 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - [x] 4 Campaign + lịch
 - [x] 5 Media quota + chunk
 - [x] 6 Notify in-app
-- [ ] 7 Lệnh + Firebase từ server (không poll 5s/10s)
+- [x] 7 Lệnh API cũ (Create/Get/Reply DB; Laravel không FCM; TV tự GET)
 
-## Đã ship (Phase 0–6)
+## Đã ship (Phase 0–7)
 
 - **Nền:** Laravel legacy routes, `LegacyJson` (app `text/html` / Swagger JSON), `GET /config6789.php`, Swagger `/api/documentation` tag 3 app, bảng `tb_*` + SQL hosting `database/sql/init_db_d26589bb.sql`.
 - **Auth:** Customer `/home/register|login|OTP|reset|changepass|DeleteUser1|GetInfo|UpdateInfo`; TV `GetListCustomer_Bysericomputer`; Admin `/sysaccount/login` (MD5→bcrypt) + CRUD account. Pass DB = bcrypt, không plaintext/MD5 trần.
@@ -28,10 +28,19 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. Chưa gửi VIDEO_FROMCAMP.
 - **Media:** `uploads/{customer_token}/`, path `./uploads/...`; chunk `_large`; quota `limit_capacity` từ `tb_resources`; disk 85%; Range serve; prune `.part*` 24h.
 - **Notify:** in-app DB only — `GetNofity_*` / `InsertNotify` / `InsertNotify_Account` / `UpdateNotify`; list `Nofity_list`; `descript`; `count` int; `seen` `'0'`/`'1'`. **Không FCM.**
+- **Lệnh:** `CreateCommand` lưu `tb_commands`; TV `GetNewCommands_BySeriComputer` (claim `sync=1`); `ReplyCommand`; Phone `GetInfoCommand_ByID`. Laravel **không** đẩy FCM/RTDB. FCM nếu có là từ APK Phone/Admin.
 - **Seed:** admin `admin`/`admin123`, customer `customer@tsscreen.local`/`123456`, 3 gói.
-- **Chưa:** FCM lệnh điều khiển (Phase 7). FCM notify in-app **không làm** (user: chỉ DB).
+- **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-08-22 — Phase 7 lệnh API cũ (không FCM Laravel)
+
+- **Done:** Phục hồi contract Phone/TV/Admin: `CreateCommand` insert DB `cmd_id` string; TV poll `GetNewCommands_BySeriComputer` `cmd_list` pending; claim `sync=1`; `ReplyCommand` `return_value` `done=1`; Phone `GetInfoCommand_ByID` (datetime + `second_wait` string). **Laravel không FCM/RTDB.**
+- **Pipeline:** phân tích 3 app / DB (không đổi `tb_commands`) / tối ưu (1 query pending + claim, không rate-limit 30s vì app 10s) / dev / test
+- **Files:** `CommandController.php`, `DeviceCommand.php`, `routes/legacy.php`, `tests/Feature/LegacyCommandTest.php`, `.agents/modules/phase7-command.md`, `storage/api-docs/api-docs.json`
+- **Next:** Deploy; TV FCM fail sẽ GET 10s lấy lệnh. Pause/CAMP trên Phone → CreateCommand → TV GetNew → Reply.
+- **Notes:** 3 tests pass. User chọn hướng cũ, không Realtime, không server FCM.
 
 ### 2026-08-22 — Phase 6 notify in-app
 

@@ -14,8 +14,8 @@ Bảng prefix `tb_*`. Media lưu disk local, quota theo gói.
 
 - Mỗi phase ship được, Swagger cập nhật endpoint của phase đó.
 - Phase sau phụ thuộc phase trước (auth → gói → thiết bị → campaign → media).
-- **Gửi lệnh (remote control) không làm sớm.** Không thiết kế poll 5s/10s. Phase cuối: Laravel đẩy Firebase FCM.
-- App TV cũ vẫn gọi `GetNewCommands` mỗi 10s khi FCM fail — backend **có endpoint** để app không gãy, nhưng **rate-limit + cache**, không khuyến khích poll. Phase lệnh mới: FCM từ server, TV tắt poll.
+- **Gửi lệnh (remote control):** Phase 7 phục hồi API cũ — Laravel **chỉ lưu DB**, **không** đẩy FCM/RTDB. TV tự GET `GetNewCommands` (app 10s). Phone vẫn có thể FCM từ APK (không qua server).
+- App TV GET `GetNewCommands` mỗi 10s khi FCM APK fail — backend **có endpoint**, query pending rẻ, claim `sync=1`. Laravel **không** FCM.
 
 ```mermaid
 flowchart TB
@@ -26,7 +26,7 @@ flowchart TB
   P4[Phase4_Campaign]
   P5[Phase5_Media]
   P6[Phase6_Notify]
-  P7[Phase7_Lenh_Firebase]
+  P7[Phase7_Lenh_DB]
 
   P0 --> P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
 ```
@@ -314,67 +314,52 @@ Chưa đẩy FCM notify (user: chỉ in-app DB). Phase 7 dùng FCM cho **lệnh 
 
 ---
 
-## Phase 7 — Lệnh điều khiển (sau, Firebase từ Laravel)
+## Phase 7 — Lệnh điều khiển (API cũ, TV tự GET)
 
-**Không làm poll định kỳ.** App TV cũ GET mỗi **10s** khi `isFirebase=false` — tốn connection, dễ sập khi nhiều máy. Phone hiện GET `GetInfoCommand_ByID` mỗi **1s** trong `secondWait` (mặc định 10s) — cũng bỏ ở hướng mới.
+**Laravel không đẩy FCM / không Firebase Realtime.** User: phục hồi CreateCommand lưu DB; TV poll `GetNewCommands`. Phone/Admin FCM từ APK (nếu có) **không** đi server.
 
 **Bảng:** `tb_commands`
-
-### Vì sao không poll
-- N máy × 6 request/phút (10s) chỉ để hỏi “có lệnh không”
-- Phone × 10 GET/lệnh chờ reply
-- Hosting PHP/Laravel chịu tải request rỗng, dễ timeout upload video cùng lúc
-
-### Hướng đi: Laravel gửi FCM, TV/phone không poll
-
-FCM **chuyển từ app** (service account trong APK — rủi ro) **sang server**. App sau này chỉ nhận push; không nhúng key Firebase.
 
 ```mermaid
 sequenceDiagram
   participant Phone
   participant API as Laravel
-  participant FCM as Firebase_FCM
   participant TV
 
   Phone->>API: POST /home/CreateCommand
   Note over Phone,API: sn cmd_code content is_imme second_wait
-  API->>API: insert tb_commands done 0
+  API->>API: insert tb_commands done 0 sync 0
   API-->>Phone: cmd_id
-  API->>FCM: send data to computer_token
-  FCM->>TV: data cmd_id cmd_code
+  Note over Phone: optional FCM từ APK — không phải Laravel
+  loop TV 10s khi FCM fail
+    TV->>API: GET GetNewCommands_BySeriComputer/serial
+    API-->>TV: cmd_list pending
+    Note over API: claim sync=1
+  end
   TV->>TV: thuc thi lenh
   TV->>API: POST /home/ReplyCommand/{cmd_id} return_value
   API->>API: luu return_value done 1
-  API->>FCM: optional push toi phone fcm_token
-  Note over Phone: khong GET lap 1s
+  loop Phone 1s tới second_wait
+    Phone->>API: GET GetInfoCommand_ByID/cmd_id
+    API-->>Phone: cmd_list
+  end
 ```
 
 `cmd_code` giữ nguyên app: `RESTART_APP`, `WAKE_UP_APP`, `GET_TIMENOW`, `DELETE_DEVICE`, `DELETE_USER`, `VIDEO_STOP`, `VIDEO_PAUSE`, `VIDEO_RESTART`, `VIDEO_FROMUSB`, `VIDEO_FROMCAMP`, `OPEN_YOUTUBE`, `OPEN_NETFLIX`, `OPEN_SPOTIFY`, `OPEN_TS_Screen`, `OPEN_FORTUNE_WHEEL`, `OPEN_VIEON`, `OPEN_TIKTOK`, `OPEN_HOME`, `RESTART_DEVICE`, `UPDATE_VERSION`.
 
 `return_value`: `OK`, `NOT_PLAY`, `CONTINUE_VIDEO`, `PAUSE_VIDEO`, `APP_NOT_SHOW`, `APP_LOCK`, `APP_RUNNING`, `NOT_PERMISSION`, hoặc `HH:mm:ss`.
 
-### Tương thích app chưa sửa (chỉ Phase 7, có kiểm soát)
+| Endpoint | Dùng cho | Backend |
+|----------|----------|---------|
+| `POST /home/CreateCommand` | Phone/Admin tạo lệnh | Insert DB; **không** FCM |
+| `POST /home/ReplyCommand/{id}` | TV trả kết quả | `return_value`, `done=1` |
+| `GET /home/GetInfoCommand_ByID/{id}` | Phone xem kết quả | `cmd_list` 1 phần tử; mọi số là string; datetime parse được |
+| `GET /home/GetNewCommands_BySeriComputer/{serial}` | TV native poll 10s | `cmd_list` `done=0` `sync=0`; claim `sync=1` |
+| `GET /home/UpdateComputerToken_ById/{id}/{token}` | Token FCM TV (app-side) | Token rỗng = logout |
 
-Giữ endpoint, **cấm poll dày**:
+Heartbeat 60s giữ nguyên, không dính lệnh.
 
-| Endpoint | Dùng cho | Giới hạn backend |
-|----------|----------|------------------|
-| `POST /home/CreateCommand` | Phone/Admin tạo lệnh | Queue FCM; nếu chưa cấu hình FCM thì chỉ lưu DB |
-| `POST /home/ReplyCommand/{id}` | TV trả kết quả | 1 lần / lệnh |
-| `GET /home/GetInfoCommand_ByID/{id}` | Phone xem kết quả | Rate-limit **tối thiểu 3s/user**, không phải vòng 1s |
-| `GET /home/GetNewCommands_BySeriComputer/{serial}` | TV Android cũ | Rate-limit **tối thiểu 30s/device**; trả `cmd_list` pending `done=0`. Không document “gọi 5s/10s” |
-| `GET /home/UpdateComputerToken_ById/{id}/{token}` | Đăng ký FCM TV | Token rỗng = logout |
-
-Khi FCM server bật: TV nhận push ngay; `GetNewCommands` chỉ còn **một lần lúc app resume** (sửa TV sau). Heartbeat 60s giữ nguyên, không dính lệnh.
-
-### Việc làm lúc tới Phase 7
-1. Service account Firebase **chỉ trên server** (`.env`), không trong APK.
-2. Queue job `SendDeviceCommand` — retry FCM, không block HTTP CreateCommand.
-3. TTL lệnh pending (ví dụ 2 phút) rồi `done=expired`.
-4. Swagger mô tả FCM payload `{ cmd_id, cmd_code }`.
-5. (Tuỳ chọn) sửa TV tắt `CHECK_COMMAND_INTERVAL`; phone bỏ `Timer.periodic 1s`.
-
-**Phase 0–6 không implement FCM gửi lệnh.** Có thể tạo sẵn `tb_commands` migration từ Phase 0 để khỏi sửa schema sau.
+**Không làm:** service account trên Laravel, queue FCM, RTDB.
 
 ---
 
@@ -396,4 +381,4 @@ Khi FCM server bật: TV nhận push ngay; `GetNewCommands` chỉ còn **một l
 4. Phase 4 — campaign (TV phát lịch)
 5. Phase 5 — media (upload video an toàn)
 6. Phase 6 — notify
-7. Phase 7 — lệnh + Firebase server (khi bạn sẵn sàng key FCM)
+7. Phase 7 — lệnh API cũ (Create/Get/Reply; Laravel không FCM)

@@ -22,4 +22,4 @@ description: Implement the current TS Screen Laravel backend phase (0-7) matchin
 - 4: campaign schedule TV
 - 5: upload quota
 - 6: notify
-- 7: FCM từ server — cần user cung cấp key; không poll 5s/10s
+- 7: lệnh API cũ (Create/Get/Reply DB). Laravel **không** FCM.

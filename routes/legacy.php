@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Legacy\CampaignController;
+use App\Http\Controllers\Legacy\CommandController;
 use App\Http\Controllers\Legacy\ConfigController;
 use App\Http\Controllers\Legacy\CustomerAdminController;
 use App\Http\Controllers\Legacy\DeviceController;
@@ -112,6 +113,11 @@ Route::prefix('home')->group(function (): void {
     Route::get('UpdateNotify/{id}', [NotifyController::class, 'markRead']);
     Route::post('InsertNotify', [NotifyController::class, 'insert']);
     Route::post('InsertNotify_Account', [NotifyController::class, 'insertAccount']);
+
+    Route::post('CreateCommand', [CommandController::class, 'create']);
+    Route::get('GetInfoCommand_ByID/{id}', [CommandController::class, 'byId']);
+    Route::get('GetNewCommands_BySeriComputer/{serial}', [CommandController::class, 'newBySerial'])->where('serial', '.*');
+    Route::post('ReplyCommand/{id}', [CommandController::class, 'reply']);
 });
 
 Route::match(['get', 'head'], 'uploads/{token}/{filename}', [MediaController::class, 'serve'])->where('filename', '.*');

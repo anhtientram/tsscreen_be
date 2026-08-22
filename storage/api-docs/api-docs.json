@@ -323,6 +323,103 @@
                 }
             }
         },
+        "/home/CreateCommand": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Phone/Admin tạo lệnh — lưu tb_commands. Laravel không gửi FCM.",
+                "operationId": "71fe1003b03b821b5087aceced6caa50",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "sn": {
+                                        "type": "string"
+                                    },
+                                    "cmd_code": {
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "type": "string"
+                                    },
+                                    "is_imme": {
+                                        "type": "string"
+                                    },
+                                    "second_wait": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "{cmd_id}"
+                    }
+                }
+            }
+        },
+        "/home/GetInfoCommand_ByID/{id}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone chờ return_value — cmd_list",
+                "operationId": "f827a654cfddb4f84b366bc0cb875336",
+                "responses": {
+                    "200": {
+                        "description": "cmd_list"
+                    }
+                }
+            }
+        },
+        "/home/GetNewCommands_BySeriComputer/{serial}": {
+            "get": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV poll lệnh pending done=0 sync=0. Laravel không FCM.",
+                "operationId": "e612fdd3cace533a2975890cbb1a5ae5",
+                "responses": {
+                    "200": {
+                        "description": "cmd_list"
+                    }
+                }
+            }
+        },
+        "/home/ReplyCommand/{id}": {
+            "post": {
+                "tags": [
+                    "Projector (TV)"
+                ],
+                "summary": "TV trả return_value, done=1",
+                "operationId": "770c77437942e3332bcd4b4bcc7a9b47",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "return_value": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
         "/config6789.php": {
             "get": {
                 "tags": [

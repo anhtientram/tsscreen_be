@@ -8,4 +8,5 @@
 - `status`: `1` ok, `-2` hiện `msg`, `-1` OTP lỗi. List rỗng vẫn có key `[]`.
 - Giữ typo API: `Nofity`, `url_youtobe`, `url_usp`, `descript`, `vaild_date`, `seri_computer`, `Genaral`.
 - POST = multipart FormData. Route không CSRF, không prefix `/api`.
+- Giờ API (`now()`, `commit_time`, `created_date`, …): **Asia/Ho_Chi_Minh (UTC+7)**.
 - Mỗi việc xong: ghi `.agents/PROGRESS.md`.

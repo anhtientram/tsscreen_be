@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** Phase 7 lệnh API cũ (Laravel không FCM)
+- **Last completed:** Timezone API UTC+7 (Asia/Ho_Chi_Minh)
 - **Blocked:** —
 
 ## Phase checklist
@@ -21,7 +21,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 
 ## Đã ship (Phase 0–7)
 
-- **Nền:** Laravel legacy routes, `LegacyJson` (app `text/html` / Swagger JSON), `GET /config6789.php`, Swagger `/api/documentation` tag 3 app, bảng `tb_*` + SQL hosting `database/sql/init_db_d26589bb.sql`.
+- **Nền:** Laravel legacy routes, `LegacyJson` (app `text/html` / Swagger JSON), `GET /config6789.php`, Swagger `/api/documentation` tag 3 app, bảng `tb_*` + SQL hosting `database/sql/init_db_d26589bb.sql`. Timezone **Asia/Ho_Chi_Minh (UTC+7)**.
 - **Auth:** Customer `/home/register|login|OTP|reset|changepass|DeleteUser1|GetInfo|UpdateInfo`; TV `GetListCustomer_Bysericomputer`; Admin `/sysaccount/login` (MD5→bcrypt) + CRUD account. Pass DB = bcrypt, không plaintext/MD5 trần.
 - **Gói/đơn:** Catalog + admin CRUD packet; phone mua/hủy/giao dịch/VietQR stub; admin OrderNew/active (`vaild_date`)/filter; `PacketQuota`.
 - **Dir/TV:** CreateDir (msg=id_dir), share dir, on/off dir; CreateDevice (`seri_computer`, quota `limit_qty`); list Phone/TV/Admin; FCM token + ROM + heartbeat 60s.
@@ -33,6 +33,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-08-22 — Giờ API UTC+7
+
+- **Done:** `APP_TIMEZONE=Asia/Ho_Chi_Minh` (config, `.env.example`, `app.yaml`). `LegacyJson::date` format Carbon theo VN. `commit_time` / `created_date` / heartbeat / `now()` không còn UTC.
+- **Pipeline:** — / DB (không đổi) / — / dev / test
+- **Files:** `config/app.php`, `app/Support/LegacyJson.php`, `app.yaml`, `.env.example`, `phpunit.xml`, `tests/Feature/LegacyCommandTest.php`
+- **Next:** Deploy Wasmer (env `APP_TIMEZONE` trong yaml).
+- **Notes:** Legacy tests 21 pass.
 
 ### 2026-08-22 — Phase 7 lệnh API cũ (không FCM Laravel)
 

@@ -21,6 +21,7 @@ env:
   L5_SWAGGER_GENERATE_ALWAYS: 'false'
   UPLOADS_ROOT: /data
   APP_URL: https://tsscreen-be.wasmer.app
+  APP_TIMEZONE: Asia/Ho_Chi_Minh
 jobs:
   - name: migrate
     trigger: post-deployment

@@ -3,12 +3,19 @@
 namespace Tests\Feature;
 
 use App\Models\DeviceCommand;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class LegacyCommandTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
 
     public function test_create_get_info_tv_poll_and_reply(): void
     {
@@ -85,5 +92,24 @@ class LegacyCommandTest extends TestCase
         ]);
         $response->assertOk();
         $this->assertStringContainsString('application/json', (string) $response->headers->get('Content-Type'));
+    }
+
+    public function test_command_times_use_vietnam_timezone(): void
+    {
+        $this->assertSame('Asia/Ho_Chi_Minh', config('app.timezone'));
+
+        Carbon::setTestNow(Carbon::parse('2026-08-22 22:30:00', 'Asia/Ho_Chi_Minh'));
+
+        $create = json_decode($this->post('/home/CreateCommand', [
+            'sn' => 'SERIAL001',
+            'cmd_code' => 'GET_TIMENOW',
+            'content' => '',
+            'is_imme' => '0',
+            'second_wait' => '10',
+        ])->getContent(), true);
+
+        $info = json_decode($this->get('/home/GetInfoCommand_ByID/'.$create['cmd_id'])->getContent(), true);
+        $this->assertSame('2026-08-22 22:30:00', $info['cmd_list'][0]['commit_time']);
+        $this->assertSame('2026-08-22 22:30:00', $info['cmd_list'][0]['return_time']);
     }
 }

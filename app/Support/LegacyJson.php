@@ -52,7 +52,9 @@ final class LegacyJson
         }
 
         if ($value instanceof \DateTimeInterface) {
-            return $value->format('Y-m-d H:i:s');
+            return \Carbon\Carbon::parse($value)
+                ->timezone('Asia/Ho_Chi_Minh')
+                ->format('Y-m-d H:i:s');
         }
 
         return (string) $value;

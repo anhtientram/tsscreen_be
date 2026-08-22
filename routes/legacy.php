@@ -7,6 +7,7 @@ use App\Http\Controllers\Legacy\DeviceController;
 use App\Http\Controllers\Legacy\DirController;
 use App\Http\Controllers\Legacy\HomeAuthController;
 use App\Http\Controllers\Legacy\MediaController;
+use App\Http\Controllers\Legacy\NotifyController;
 use App\Http\Controllers\Legacy\OrderController;
 use App\Http\Controllers\Legacy\PacketController;
 use App\Http\Controllers\Legacy\SysAccountController;
@@ -102,6 +103,15 @@ Route::prefix('home')->group(function (): void {
     Route::post('uploadfile_customer_large', [MediaController::class, 'uploadLarge']);
     Route::post('deletefile_customer', [MediaController::class, 'delete']);
     Route::post('cancelUpload', [MediaController::class, 'cancel']);
+
+    Route::get('GetNofity_ByIdCustomer/{customerId}', [NotifyController::class, 'byCustomer']);
+    Route::get('GetNofityNew_ByIdCustomer/{customerId}', [NotifyController::class, 'newCountByCustomer']);
+    Route::get('GetNofity_ByIdAccount/{accountId}', [NotifyController::class, 'byAccount']);
+    Route::get('GetNofityNew_ByIdAccount/{accountId}', [NotifyController::class, 'newCountByAccount']);
+    Route::get('GetNofity_ById/{id}', [NotifyController::class, 'byId']);
+    Route::get('UpdateNotify/{id}', [NotifyController::class, 'markRead']);
+    Route::post('InsertNotify', [NotifyController::class, 'insert']);
+    Route::post('InsertNotify_Account', [NotifyController::class, 'insertAccount']);
 });
 
 Route::match(['get', 'head'], 'uploads/{token}/{filename}', [MediaController::class, 'serve'])->where('filename', '.*');

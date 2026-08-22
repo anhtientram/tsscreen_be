@@ -4,8 +4,8 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 
 ## Status
 
-- **Current phase:** 6
-- **Last completed:** Volume `/data/uploads` — không ghi vào `public/` (GET 500)
+- **Current phase:** 7
+- **Last completed:** Phase 6 notify in-app (không FCM)
 - **Blocked:** —
 
 ## Phase checklist
@@ -16,10 +16,10 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - [x] 3 Dir + device pairing
 - [x] 4 Campaign + lịch
 - [x] 5 Media quota + chunk
-- [ ] 6 Notify in-app
+- [x] 6 Notify in-app
 - [ ] 7 Lệnh + Firebase từ server (không poll 5s/10s)
 
-## Đã ship (Phase 0–5)
+## Đã ship (Phase 0–6)
 
 - **Nền:** Laravel legacy routes, `LegacyJson` (app `text/html` / Swagger JSON), `GET /config6789.php`, Swagger `/api/documentation` tag 3 app, bảng `tb_*` + SQL hosting `database/sql/init_db_d26589bb.sql`.
 - **Auth:** Customer `/home/register|login|OTP|reset|changepass|DeleteUser1|GetInfo|UpdateInfo`; TV `GetListCustomer_Bysericomputer`; Admin `/sysaccount/login` (MD5→bcrypt) + CRUD account. Pass DB = bcrypt, không plaintext/MD5 trần.
@@ -27,10 +27,27 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Dir/TV:** CreateDir (msg=id_dir), share dir, on/off dir; CreateDevice (`seri_computer`, quota `limit_qty`); list Phone/TV/Admin; FCM token + ROM + heartbeat 60s.
 - **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. Chưa gửi VIDEO_FROMCAMP.
 - **Media:** `uploads/{customer_token}/`, path `./uploads/...`; chunk `_large`; quota `limit_capacity` từ `tb_resources`; disk 85%; Range serve; prune `.part*` 24h.
+- **Notify:** in-app DB only — `GetNofity_*` / `InsertNotify` / `InsertNotify_Account` / `UpdateNotify`; list `Nofity_list`; `descript`; `count` int; `seen` `'0'`/`'1'`. **Không FCM.**
 - **Seed:** admin `admin`/`admin123`, customer `customer@tsscreen.local`/`123456`, 3 gói.
-- **Chưa:** notify in-app (Phase 6), FCM lệnh (Phase 7).
+- **Chưa:** FCM lệnh điều khiển (Phase 7). FCM notify in-app **không làm** (user: chỉ DB).
 
 ## Log
+
+### 2026-08-22 — Phase 6 notify in-app
+
+- **Done:** API typo `Nofity`: list/count customer + admin, `GetNofity_ById`, `UpdateNotify` seen=1, `InsertNotify` (customer; Admin duyệt gói), `InsertNotify_Account` (inbox admin). TV chỉ InsertNotify. **Không FCM.** User: noti thường; FCM note Phase 7 lệnh.
+- **Pipeline:** phân tích 3 app / DB (không đổi `tb_notifications` + `tb_account_notifications`) / tối ưu (1 query list/count) / dev / test
+- **Files:** `NotifyController.php`, `routes/legacy.php`, models notify, `tests/Feature/LegacyNotifyTest.php`, `.agents/modules/phase6-notify.md`, `storage/api-docs/api-docs.json`
+- **Next:** Phase 7 lệnh + FCM khi có key. Deploy Phase 6: login hết 404 `GetNofityNew_*`.
+- **Notes:** 4 tests pass. `id_notify` string; `count` JSON number.
+
+### 2026-08-22 — app.yaml không migrate/seed
+
+- **Done:** Job cũ `command: after_deploy` là lệnh anybuild (chỉ migrate khi provider còn inject). YAML repo không định nghĩa lệnh đó nên không chạy. Đổi job tường minh: `php /app/artisan migrate --force` rồi `db:seed --force`. Seeders idempotent (admin/customer/gói). `APP_URL` Wasmer để ConfigSeeder ghi `API_SERVER`.
+- **Pipeline:** — / DB (không đổi schema) / — / — / —
+- **Files:** `app.yaml`
+- **Next:** Push; log deploy phải thấy migrate. Không dùng `migrate:fresh` (xóa data).
+- **Notes:** Seed SQL phpMyAdmin (`seed.sql`) khác `DatabaseSeeder` — dir Demo/đơn gói cơ bản chỉ trong SQL.
 
 ### 2026-08-21 — Volume có, ảnh GET 500
 

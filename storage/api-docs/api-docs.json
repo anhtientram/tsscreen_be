@@ -860,7 +860,7 @@
                     "Customer (Phone)",
                     "Projector (TV)"
                 ],
-                "summary": "Customer login (plaintext; empty password = Google/Apple). Phone + TV.",
+                "summary": "Customer login (plaintext). Field email = email hoặc SĐT. Empty password = Google/Apple. Phone + TV.",
                 "operationId": "9211bdb413e470ca4e9c9e21066679b6",
                 "requestBody": {
                     "required": true,
@@ -872,6 +872,7 @@
                                 ],
                                 "properties": {
                                     "email": {
+                                        "description": "Email hoặc số điện thoại",
                                         "type": "string"
                                     },
                                     "password": {
@@ -1300,11 +1301,182 @@
                     "Projector (TV)",
                     "Customer (Phone)"
                 ],
-                "summary": "Serve media HTTP Range (TV seek)",
+                "summary": "GET + HEAD media (app HEAD lấy content-length)",
                 "operationId": "af9d0cd93a8e0492a59ec8b3869f97ab",
                 "responses": {
                     "200": {
+                        "description": "file / HEAD length"
+                    }
+                }
+            }
+        },
+        "/home/GetNofity_ByIdCustomer/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "List notify customer — Nofity_list",
+                "operationId": "5cd0d1d7a300ebe7d487b1245cbdb5bd",
+                "responses": {
+                    "200": {
                         "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetNofityNew_ByIdCustomer/{customerId}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Số notify chưa đọc (seen=0)",
+                "operationId": "cb3042124361ff716a5b10d93eb16188",
+                "responses": {
+                    "200": {
+                        "description": "{count}"
+                    }
+                }
+            }
+        },
+        "/home/GetNofity_ByIdAccount/{accountId}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List notify admin — Nofity_list",
+                "operationId": "3e5fb6c0293edf7d2704e010e75a5575",
+                "responses": {
+                    "200": {
+                        "description": "legacy JSON"
+                    }
+                }
+            }
+        },
+        "/home/GetNofityNew_ByIdAccount/{accountId}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Số notify admin chưa đọc",
+                "operationId": "057214679c56fbcbe0553bf72d59047e",
+                "responses": {
+                    "200": {
+                        "description": "{count}"
+                    }
+                }
+            }
+        },
+        "/home/GetNofity_ById/{id}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Một notify (customer hoặc admin)",
+                "operationId": "9e7db0fae58fce84593e7873e27306a8",
+                "responses": {
+                    "200": {
+                        "description": "Nofity_list"
+                    }
+                }
+            }
+        },
+        "/home/UpdateNotify/{id}": {
+            "get": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Admin"
+                ],
+                "summary": "Đánh dấu đã đọc seen=1",
+                "operationId": "1cd58ebb50c0046847079d3cfd9bb881",
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/home/InsertNotify": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)",
+                    "Projector (TV)",
+                    "Admin"
+                ],
+                "summary": "Tạo notify customer (Phone/TV/Admin duyệt gói). Không FCM. Admin FormData customer_id = customer thật (field Dart tên accountId).",
+                "operationId": "206584138296afa4e00bb396373cb60d",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "customer_id": {
+                                        "type": "string"
+                                    },
+                                    "account_id": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "descript": {
+                                        "type": "string"
+                                    },
+                                    "detail": {
+                                        "type": "string"
+                                    },
+                                    "picture": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
+                    }
+                }
+            }
+        },
+        "/home/InsertNotify_Account": {
+            "post": {
+                "tags": [
+                    "Customer (Phone)"
+                ],
+                "summary": "Phone gửi notify tới từng admin (account_id). Không FCM.",
+                "operationId": "27eb2e7a1dd8015e58d84b1e1a3b23cb",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "account_id": {
+                                        "type": "string"
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "descript": {
+                                        "type": "string"
+                                    },
+                                    "detail": {
+                                        "type": "string"
+                                    },
+                                    "picture": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "status 1"
                     }
                 }
             }

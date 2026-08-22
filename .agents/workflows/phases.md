@@ -307,10 +307,10 @@ Typo giữ: `Nofity_list`, field `descript`.
 | App | Endpoint |
 |-----|----------|
 | Phone | `GetNofity_ByIdCustomer`, `GetNofityNew_ByIdCustomer` → `{ count }`, `InsertNotify` |
-| Admin | `GetNofity_ByIdAccount`, `GetNofityNew_ByIdAccount`, `InsertNotify` (đôi khi nhét `account_id` vào `customer_id`) |
+| Admin | `GetNofity_ByIdAccount`, `GetNofityNew_ByIdAccount`; `InsertNotify` FormData `customer_id` = customer (Dart field `accountId`); inbox admin = `InsertNotify_Account` |
 | Cả hai | `GetNofity_ById`, `UpdateNotify/{id}` đánh dấu đọc |
 
-Chưa đẩy FCM notify ở phase này (app tự nhận topic/token sẵn). Phase 7 mới dùng FCM cho **lệnh điều khiển**.
+Chưa đẩy FCM notify (user: chỉ in-app DB). Phase 7 dùng FCM cho **lệnh điều khiển**, không phải badge notify.
 
 ---
 

@@ -20,12 +20,28 @@ env:
   LOG_STACK: single,stderr
   L5_SWAGGER_GENERATE_ALWAYS: 'false'
   UPLOADS_ROOT: /data
+  APP_URL: https://tsscreen-be.wasmer.app
 jobs:
-- action:
-    execute:
-      command: after_deploy
-  name: after_deploy
-  trigger: post-deployment
+  - name: migrate
+    trigger: post-deployment
+    action:
+      execute:
+        command: php
+        cli_args:
+          - /app/artisan
+          - migrate
+          - --force
+        timeout: 5m
+  - name: seed
+    trigger: post-deployment
+    action:
+      execute:
+        command: php
+        cli_args:
+          - /app/artisan
+          - db:seed
+          - --force
+        timeout: 5m
 kind: wasmer.io/App.v0
 name: tsscreen_be
 owner: anhtientram

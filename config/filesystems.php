@@ -87,4 +87,8 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    // Trần hosting: chừa chỗ trống; 0 = không giới hạn tổng (vẫn check disk_free_space).
+    'uploads_reserve_bytes' => (int) env('UPLOADS_RESERVE_BYTES', 64 * 1024 * 1024),
+    'uploads_volume_cap' => (int) env('UPLOADS_VOLUME_CAP', 0),
+    'uploads_max_global' => (int) env('UPLOADS_MAX_GLOBAL', 2),
 ];

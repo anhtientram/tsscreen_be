@@ -43,7 +43,7 @@ class PacketController extends Controller
                 new OA\Property(property: 'detail', type: 'string'),
                 new OA\Property(property: 'description', type: 'string'),
                 new OA\Property(property: 'limit_qty', type: 'string', description: 'Số TV tối đa'),
-                new OA\Property(property: 'limit_capacity', type: 'string', description: 'Bytes'),
+                new OA\Property(property: 'limit_capacity', type: 'string', description: 'Bytes; 1–1024 = GB'),
                 new OA\Property(property: 'account_id', type: 'string'),
                 new OA\Property(property: 'is_trial', type: 'string'),
                 new OA\Property(property: 'is_business', type: 'string'),

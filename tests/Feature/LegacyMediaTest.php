@@ -85,6 +85,8 @@ class LegacyMediaTest extends TestCase
         $size = json_decode($this->post('/home/getsizeofdir_customer', ['name_dir' => $token])->getContent(), true);
         $this->assertIsString($size['totalsize']);
         $this->assertGreaterThan(0, (int) $size['totalsize']);
+        $this->assertSame((string) (1024 * 1024 * 1024), $size['limit']);
+        $this->assertSame((string) ((1024 * 1024 * 1024) - (int) $size['totalsize']), $size['remain']);
 
         $c1 = $this->post('/home/uploadfile_customer_large', [
             'name_dir' => $token,
@@ -125,7 +127,10 @@ class LegacyMediaTest extends TestCase
             'customer_id' => $customer->customer_id,
             'fileupload' => UploadedFile::fake()->create('more.mp4', 20, 'video/mp4'),
         ]);
-        $this->assertNotSame(1, json_decode($over->getContent(), true)['status']);
+        $overBody = json_decode($over->getContent(), true);
+        $this->assertNotSame(1, $overBody['status']);
+        $this->assertSame(-2, $overBody['status']);
+        $this->assertStringContainsString('Hết dung lượng gói', $overBody['msg']);
 
         $this->post('/home/deletefile_customer', [
             'name_dir' => $token,
@@ -134,6 +139,26 @@ class LegacyMediaTest extends TestCase
         $after = json_decode($this->post('/home/getfiles_customer', ['name_dir' => $token])->getContent(), true);
         $names = array_column($after['file_list'], 'name');
         $this->assertNotContains('clip.mp4', $names);
+    }
+
+    public function test_large_upload_rejects_when_projected_file_exceeds_packet(): void
+    {
+        $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();
+        $token = $customer->customer_token;
+        $this->activateBasic($customer);
+
+        $tooBig = json_decode($this->post('/home/uploadfile_customer_large', [
+            'name_dir' => $token,
+            'customer_id' => $customer->customer_id,
+            'filename' => 'huge.mp4',
+            'chunk_index' => 1,
+            'total_chunks' => 20000,
+            'fileupload' => UploadedFile::fake()->create('huge.mp4', 100, 'video/mp4'),
+        ])->getContent(), true);
+
+        $this->assertSame(-2, $tooBig['status']);
+        $this->assertStringContainsString('Hết dung lượng gói', $tooBig['msg']);
+        $this->assertSame(0, ResourceFile::query()->where('name', 'huge.mp4')->count());
     }
 
     private function activateBasic(Customer $customer): void

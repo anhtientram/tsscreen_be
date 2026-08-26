@@ -1770,7 +1770,7 @@
                                         "type": "string"
                                     },
                                     "limit_capacity": {
-                                        "description": "Bytes",
+                                        "description": "Bytes; 1–1024 = GB",
                                         "type": "string"
                                     },
                                     "account_id": {

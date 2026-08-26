@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** Timezone API UTC+7 (Asia/Ho_Chi_Minh)
+- **Last completed:** Hosting 50GB: không up full ổ (VOLUME_CAP)
 - **Blocked:** —
 
 ## Phase checklist
@@ -26,13 +26,38 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Gói/đơn:** Catalog + admin CRUD packet; phone mua/hủy/giao dịch/VietQR stub; admin OrderNew/active (`vaild_date`)/filter; `PacketQuota`.
 - **Dir/TV:** CreateDir (msg=id_dir), share dir, on/off dir; CreateDevice (`seri_computer`, quota `limit_qty`); list Phone/TV/Admin; FCM token + ROM + heartbeat 60s.
 - **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. Chưa gửi VIDEO_FROMCAMP.
-- **Media:** `uploads/{customer_token}/`, path `./uploads/...`; chunk `_large`; quota `limit_capacity` từ `tb_resources`; disk 85%; Range serve; prune `.part*` 24h.
+- **Media:** `uploads/{customer_token}/`; quota gói bytes (1–1024 = GB); **mọi hosting** disk/volume > tổng gói + reserve 64MB; `UPLOADS_VOLUME_CAP` nếu ổ nhỏ hơn; 2 upload/instance; Range; prune `.part*`.
+- **Log:** `AppLog` → `storage/logs/app/app-YYYY-MM-DD.log`. Trang `{APP_URL}/logs/app?key=LOG_VIEWER_KEY`.
 - **Notify:** in-app DB only — `GetNofity_*` / `InsertNotify` / `InsertNotify_Account` / `UpdateNotify`; list `Nofity_list`; `descript`; `count` int; `seen` `'0'`/`'1'`. **Không FCM.**
 - **Lệnh:** `CreateCommand` lưu `tb_commands`; TV `GetNewCommands_BySeriComputer` (claim `sync=1`); `ReplyCommand`; Phone `GetInfoCommand_ByID`. Laravel **không** đẩy FCM/RTDB. FCM nếu có là từ APK Phone/Admin.
 - **Seed:** admin `admin`/`admin123`, customer `customer@tsscreen.local`/`123456`, 3 gói.
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-08-26 — Ổ 50GB đầy là sập: đặt VOLUME_CAP ~45GB
+
+- **Done:** Ghi rule hosting: full 50GB (hình/video) làm PHP/DB không ghi được. Ổ 50GB → `UPLOADS_VOLUME_CAP=48318382080` (~45GB), từ chối upload trước khi chạm trần.
+- **Pipeline:** — / — / tối ưu / docs / —
+- **Files:** `.agents/rules/05-hosting.md`, `.env.example`
+- **Next:** Trên host 50GB set env đó, không để CAP=0 nếu ổ có hạn.
+- **Notes:** Không cần unlimit; cần không bao giờ để ổ 100%.
+
+### 2026-08-26 — AppLog + /logs/app; hosting ghi chú mọi NCC
+
+- **Done:** Rule `05-hosting.md`: quota gói ≠ ổ cứng, mọi hosting. Helper `AppLog` JSONL `storage/logs/app/`. Exception 500 ghi log. Trang HTML `GET /logs/app?key=`. Upload lỗi đi AppLog. Media dùng AppLog.
+- **Pipeline:** phân tích 3 app (không gọi) / DB không đổi / tối ưu (400KB cuối file, redact secret) / dev / test
+- **Files:** `AppLog.php`, `LogViewerController.php`, `resources/views/logs/app.blade.php`, `routes/web.php`, `bootstrap/app.php`, `.agents/rules/05-hosting.md`, `tests/Feature/AppLogViewerTest.php`
+- **Next:** Set `LOG_VIEWER_KEY` trên hosting (dashboard, không commit). Mở `{APP_URL}/logs/app?key=...`.
+- **Notes:** 8 tests liên quan pass. Key tối thiểu 8 ký tự.
+
+### 2026-08-26 — Tối ưu media: quota GB + không sập volume
+
+- **Done:** Gói 1GB = 1GiB upload (admin nhập `1`–`1024` = GB). Chặn trước khi ghi: quota gói, ước lượng chunk lớn, free space volume uploads (bỏ skip disk ảo Wasmer). Trần `UPLOADS_VOLUME_CAP`. `msg` rõ khi hết gói/hosting. 2 upload/instance. Ghép chunk xóa từng `.part`.
+- **Pipeline:** phân tích 3 app / DB (không đổi) / tối ưu disk+quota / dev / test
+- **Files:** `PacketQuota.php`, `DiskWatermark.php`, `MediaController.php`, `Packet.php`, `config/filesystems.php`, `app.yaml`, `.agents/modules/media-quota-host.md`, tests
+- **Next:** Deploy. Volume nhỏ hơn tổng gói thì set `UPLOADS_VOLUME_CAP` (bytes).
+- **Notes:** Legacy 23 tests pass. Phone vẫn chỉ đọc `totalsize`; thêm `limit`/`remain` không phá app.
 
 ### 2026-08-22 — Giờ API UTC+7
 

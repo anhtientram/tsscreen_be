@@ -278,7 +278,7 @@ sequenceDiagram
   API-->>Phone: totalsize
   Note over Phone: client check limit_capacity
   Phone->>API: POST uploadfile_customer hoac _large
-  API->>API: lock user plus check goi plus disk 85 percent
+  API->>API: lock user plus quota goi plus disk volume
   API->>Disk: stream write khong load RAM
   API-->>Phone: status path_file ResourceModel
 ```
@@ -286,9 +286,10 @@ sequenceDiagram
 **Bảo vệ server**
 - Stream `UploadedFile`, không đọc cả file vào RAM
 - Chunk: `{name}.part{n}` → assemble khi đủ `total_chunks`; `cancelUpload` xóa part
-- Quota từ `tb_resources` (không scan disk mỗi request)
-- Disk > 85% → reject mọi upload
-- Tối đa 2 upload đồng thời / user; max 110MB / request
+- Quota từ `tb_resources` (không scan disk mỗi request); 1GB gói = 1GiB upload
+- Volume uploads: free space + reserve 64MB; `UPLOADS_VOLUME_CAP` nếu volume nhỏ hơn tổng gói
+- Chunk ước lượng tổng file trước khi ghi `.part`; ghép xong xóa từng part
+- Tối đa 2 upload đồng thời / user và / instance; max 110MB / request
 - Whitelist image jpeg/png/webp/gif, video mp4/mov/webm
 - Queue xóa `.part*` > 24h
 - Serve **HTTP Range** (TV seek). Nginx alias `public/uploads` tốt hơn PHP

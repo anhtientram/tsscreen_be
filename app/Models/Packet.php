@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Support\LegacyJson;
+use App\Services\PacketQuota;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
@@ -55,7 +56,11 @@ class Packet extends Model
             'detail' => $request->input('detail', $packet->detail),
             'description' => $request->input('description', $packet->description),
             'limit_qty' => $request->input('limit_qty', $packet->limit_qty ?: '0'),
-            'limit_capacity' => $request->input('limit_capacity', $packet->limit_capacity ?: '0'),
+            'limit_capacity' => (string) PacketQuota::bytesFromLimit(
+                ($request->input('limit_capacity') === null || $request->input('limit_capacity') === '')
+                    ? ($packet->limit_capacity ?: '0')
+                    : $request->input('limit_capacity')
+            ),
             'account_id' => $request->input('account_id', $packet->account_id),
             'is_trial' => $request->input('is_trial', $packet->is_trial ?: '0'),
             'is_business' => $request->input('is_business', $packet->is_business ?: '0'),

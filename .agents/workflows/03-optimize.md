@@ -6,6 +6,7 @@ Mục tiêu: thiết kế **không đốt hosting** khi nhiều TV/phone.
 
 - Số query / request: list + relation dùng `with()`, không N+1.
 - Hạn mức gói: `App\Services\PacketQuota` — device `limit_qty`, media `limit_capacity`. Check **server**.
+- **Mọi hosting:** ổ uploads phải chứa được tổng gói đang bán; `UPLOADS_VOLUME_CAP` nếu disk nhỏ hơn. Chi tiết `rules/05-hosting.md`.
 - Không poll lệnh 5s/10s. Heartbeat `UpdateAliveTimeDevice_ById` 60s được.
 - Ghi/đọc file: stream, không load cả file RAM (Phase 5).
 - List lớn: chỉ field app parse; ID string nhưng không dump blob.

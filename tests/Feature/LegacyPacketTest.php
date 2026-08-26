@@ -150,4 +150,23 @@ class LegacyPacketTest extends TestCase
         $paidId = json_decode($buy->getContent(), true)['msg'];
         $this->assertSame('499000', Order::query()->where('paid_id', $paidId)->value('price'));
     }
+
+    public function test_admin_limit_capacity_one_is_one_gigabyte(): void
+    {
+        $this->assertSame(1024 * 1024 * 1024, PacketQuota::bytesFromLimit('1'));
+        $this->assertSame(10 * 1024 * 1024 * 1024, PacketQuota::bytesFromLimit('10'));
+        $this->assertSame(1048576, PacketQuota::bytesFromLimit('1048576'));
+
+        $create = $this->post('/home/CreatePacket', [
+            'name_packet' => 'Gói 1GB',
+            'price' => '1',
+            'detail' => '1GB',
+            'description' => '1GB',
+            'limit_qty' => '1',
+            'limit_capacity' => '1',
+            'is_trial' => '0',
+        ]);
+        $id = json_decode($create->getContent(), true)['msg'];
+        $this->assertSame((string) (1024 * 1024 * 1024), Packet::query()->where('packet_id', $id)->value('limit_capacity'));
+    }
 }

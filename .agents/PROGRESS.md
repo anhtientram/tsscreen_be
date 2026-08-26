@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** Hosting 50GB: không up full ổ (VOLUME_CAP)
+- **Last completed:** CreateCamp `id_computer` = video 1 TV
 - **Blocked:** —
 
 ## Phase checklist
@@ -25,7 +25,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Auth:** Customer `/home/register|login|OTP|reset|changepass|DeleteUser1|GetInfo|UpdateInfo`; TV `GetListCustomer_Bysericomputer`; Admin `/sysaccount/login` (MD5→bcrypt) + CRUD account. Pass DB = bcrypt, không plaintext/MD5 trần.
 - **Gói/đơn:** Catalog + admin CRUD packet; phone mua/hủy/giao dịch/VietQR stub; admin OrderNew/active (`vaild_date`)/filter; `PacketQuota`.
 - **Dir/TV:** CreateDir (msg=id_dir), share dir, on/off dir; CreateDevice (`seri_computer`, quota `limit_qty`); list Phone/TV/Admin; FCM token + ROM + heartbeat 60s.
-- **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. Chưa gửi VIDEO_FROMCAMP.
+- **Campaign:** Create/Approve + time run; TV `GetCampToday_ByComputerId` / `GetAllRunTimeOfComputer_4`; `url_youtobe`/`url_usp`; `GetCampaignRunProfile_Genaral`; map run profile qua `seri_computer`. **`id_computer` = video 1 TV; chỉ `id_dir` = cả hệ thống.** Chưa gửi VIDEO_FROMCAMP.
 - **Media:** `uploads/{customer_token}/`; quota gói bytes (1–1024 = GB); **mọi hosting** disk/volume > tổng gói + reserve 64MB; `UPLOADS_VOLUME_CAP` nếu ổ nhỏ hơn; 2 upload/instance; Range; prune `.part*`.
 - **Log:** `AppLog` → `storage/logs/app/app-YYYY-MM-DD.log`. Trang `{APP_URL}/logs/app?key=LOG_VIEWER_KEY`.
 - **Notify:** in-app DB only — `GetNofity_*` / `InsertNotify` / `InsertNotify_Account` / `UpdateNotify`; list `Nofity_list`; `descript`; `count` int; `seen` `'0'`/`'1'`. **Không FCM.**
@@ -34,6 +34,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-08-26 — CreateCamp id_computer = video riêng 1 TV
+
+- **Done:** Phone gửi `id_computer` (thường không gửi `computer_id`) khi thêm video cho 1 máy. Lưu cả `computer_id` và `id_computer`. List/lịch TV: camp của máy đó, hoặc camp cả hệ thống (`id_dir` + cả hai cột máy rỗng). Camp gắn TV A không hiện trên TV B cùng dir.
+- **Pipeline:** phân tích 3 app / DB không đổi / tối ưu filter 1 query / dev / test
+- **Files:** `CampaignController.php`, `.agents/modules/phase4-campaign.md`, `tests/Feature/LegacyCampaignTest.php`
+- **Next:** Deploy; Phone thêm video 1 máy truyền `id_computer`.
+- **Notes:** Camp chỉ `id_dir` (không `id_computer`) vẫn chạy mọi TV trong hệ thống.
 
 ### 2026-08-26 — Ổ 50GB đầy là sập: đặt VOLUME_CAP ~45GB
 

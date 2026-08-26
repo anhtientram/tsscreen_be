@@ -184,6 +184,68 @@ class LegacyCampaignTest extends TestCase
         $this->assertNull($camp->computer_id);
     }
 
+    public function test_create_camp_id_computer_is_only_for_that_device(): void
+    {
+        $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();
+        $this->activateBasic($customer);
+
+        $idDir = json_decode($this->post('/home/CreateDir', [
+            'name_dir' => 'Hall',
+            'customer_id' => $customer->customer_id,
+            'type_dir' => 'g',
+        ])->getContent(), true)['msg'];
+
+        $this->post('/home/CreateDevice', [
+            'computer_name' => 'TV A',
+            'seri_computer' => 'TVA',
+            'status' => '1',
+            'center_id' => '5',
+            'customer_id' => $customer->customer_id,
+            'type' => 'chủ sở hữu',
+            'id_dir' => $idDir,
+        ]);
+        $this->post('/home/CreateDevice', [
+            'computer_name' => 'TV B',
+            'seri_computer' => 'TVB',
+            'status' => '1',
+            'center_id' => '5',
+            'customer_id' => $customer->customer_id,
+            'type' => 'chủ sở hữu',
+            'id_dir' => $idDir,
+        ]);
+        $tvA = Device::query()->where('seri_computer', 'TVA')->value('computer_id');
+        $tvB = Device::query()->where('seri_computer', 'TVB')->value('computer_id');
+
+        $create = $this->post('/home/CreateCamp', [
+            'campaign_name' => 'Chi TV A',
+            'status' => '1',
+            'video_type' => 'url',
+            'url_youtobe' => 'https://example.com/a.mp4',
+            'customer_id' => $customer->customer_id,
+            'id_dir' => $idDir,
+            'computer_id' => '',
+            'id_computer' => $tvA,
+            'approved_yn' => '1',
+            'video_duration' => '10',
+        ]);
+        $body = json_decode($create->getContent(), true);
+        $this->assertSame(1, $body['status']);
+        $camp = Campaign::query()->where('campaign_id', $body['msg'])->first();
+        $this->assertSame((string) $tvA, (string) $camp->computer_id);
+        $this->assertSame((string) $tvA, (string) $camp->id_computer);
+
+        $onA = json_decode($this->get('/home/Getcamp_ByComputerId/'.$tvA.'/1')->getContent(), true);
+        $onB = json_decode($this->get('/home/Getcamp_ByComputerId/'.$tvB.'/1')->getContent(), true);
+        $this->assertCount(1, $onA['Camp_list']);
+        $this->assertSame((string) $tvA, $onA['Camp_list'][0]['id_computer']);
+        $this->assertSame([], $onB['Camp_list']);
+
+        $todayA = json_decode($this->get('/home/GetCampToday_ByComputerId/'.$tvA.'/2026-08-20/1')->getContent(), true);
+        $todayB = json_decode($this->get('/home/GetCampToday_ByComputerId/'.$tvB.'/2026-08-20/1')->getContent(), true);
+        $this->assertCount(1, $todayA['Camp_list']);
+        $this->assertSame([], $todayB['Camp_list']);
+    }
+
     private function activateBasic(Customer $customer): void
     {
         $packet = Packet::query()->where('name_packet', 'Gói cơ bản')->first();

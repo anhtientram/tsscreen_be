@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
 
 class CampaignController extends Controller
 {
-    #[OA\Post(path: '/home/CreateCamp', summary: 'Phone tạo campaign; nhận url_youtobe và url_yotobe', tags: [AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'legacy JSON')])]
+    #[OA\Post(path: '/home/CreateCamp', summary: 'Phone tạo camp. id_computer = video riêng 1 TV; chỉ id_dir = cả hệ thống', tags: [AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'legacy JSON')])]
     public function create(Request $request)
     {
         $customerId = $request->input('customer_id');
@@ -98,13 +98,7 @@ class CampaignController extends Controller
     {
         $device = Device::alive()->where('computer_id', $computerId)->first();
         $query = Campaign::alive()->with('dir');
-        if ($device?->id_dir) {
-            $query->where(function ($q) use ($computerId, $device): void {
-                $q->where('computer_id', $computerId)->orWhere('id_dir', $device->id_dir);
-            });
-        } else {
-            $query->where('computer_id', $computerId);
-        }
+        $this->restrictToComputer($query, $computerId, $device);
         $this->applyApprovedFilter($query, $status);
 
         $list = $query->orderBy('campaign_id')->get()->map(fn (Campaign $c) => $c->toLegacyArray())->values()->all();
@@ -131,13 +125,7 @@ class CampaignController extends Controller
         }
 
         $query = Campaign::alive()->with('dir');
-        if ($device->id_dir) {
-            $query->where(function ($q) use ($computerId, $device): void {
-                $q->where('computer_id', $computerId)->orWhere('id_dir', $device->id_dir);
-            });
-        } else {
-            $query->where('computer_id', $computerId);
-        }
+        $this->restrictToComputer($query, $computerId, $device);
         $this->applyApprovedFilter($query, $flag);
 
         $list = $query->get()
@@ -171,13 +159,7 @@ class CampaignController extends Controller
         }
 
         $query = Campaign::alive();
-        if ($device->id_dir) {
-            $query->where(function ($q) use ($computerId, $device): void {
-                $q->where('computer_id', $computerId)->orWhere('id_dir', $device->id_dir);
-            });
-        } else {
-            $query->where('computer_id', $computerId);
-        }
+        $this->restrictToComputer($query, (string) $computerId, $device);
         $this->applyApprovedFilter($query, '1');
 
         $camps = $query->get()->filter(
@@ -429,8 +411,8 @@ class CampaignController extends Controller
     private function attrsFromRequest(Request $request, array $extra = []): array
     {
         $url = $request->input('url_youtobe') ?: $request->input('url_yotobe');
-        $computerId = $request->input('computer_id');
         $idDir = $request->input('id_dir');
+        $targetComputer = $this->targetComputerId($request);
 
         return array_merge([
             'campaign_name' => $request->input('campaign_name'),
@@ -445,14 +427,56 @@ class CampaignController extends Controller
             'url_youtobe' => $url ?: '',
             'url_usp' => $request->input('url_usp') ?: '',
             'customer_id' => $request->input('customer_id'),
-            'computer_id' => ($computerId === '' || $computerId === null) ? null : $computerId,
+            'computer_id' => $targetComputer,
             'id_dir' => ($idDir === '' || $idDir === null) ? null : $idDir,
-            'id_computer' => $request->input('id_computer') ?: '',
+            'id_computer' => $targetComputer !== null ? LegacyJson::str($targetComputer) : '',
             'video_duration' => $request->input('video_duration') ?: '',
             'approved_yn' => $this->flag($request, 'approved_yn'),
             'default_yn' => $this->flag($request, 'default_yn'),
             'run_by_default_yn' => $this->flag($request, 'run_by_default_yn'),
         ], $extra);
+    }
+
+    private function targetComputerId(Request $request): mixed
+    {
+        $computerId = $request->input('computer_id');
+        $idComputer = $request->input('id_computer');
+        if ($this->filledComputerId($computerId)) {
+            return $computerId;
+        }
+        if ($this->filledComputerId($idComputer)) {
+            return $idComputer;
+        }
+
+        return null;
+    }
+
+    private function filledComputerId(mixed $value): bool
+    {
+        $s = trim((string) $value);
+
+        return $s !== '' && $s !== '0';
+    }
+
+    private function restrictToComputer($query, string $computerId, ?Device $device): void
+    {
+        $query->where(function ($q) use ($computerId, $device): void {
+            $q->where(function ($own) use ($computerId): void {
+                $own->where('computer_id', $computerId)
+                    ->orWhere('id_computer', $computerId);
+            });
+            if ($device?->id_dir) {
+                $q->orWhere(function ($dir) use ($device): void {
+                    $dir->where('id_dir', $device->id_dir)
+                        ->where(function ($empty) {
+                            $empty->whereNull('computer_id')->orWhere('computer_id', '')->orWhere('computer_id', '0');
+                        })
+                        ->where(function ($empty) {
+                            $empty->whereNull('id_computer')->orWhere('id_computer', '')->orWhere('id_computer', '0');
+                        });
+                });
+            }
+        });
     }
 
     private function applyApprovedFilter($query, string $status): void

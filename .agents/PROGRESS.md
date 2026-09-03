@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** Review tối ưu toàn hệ thống (~78%)
+- **Last completed:** Gói dùng thử auto-active + payment/valid/expire_date
 - **Blocked:** —
 
 ## Phase checklist
@@ -34,6 +34,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-09-03 — Gói dùng thử auto-active + ngày hạn
+
+- **Done:** `BuyPacket_ByIdCustomer_1` với `is_trial=1` tự kích hoạt (`pay=1`), không chờ admin. `payment_date` và `valid_date` = `register_date`; `expire_date` = register + `day_qty` gói (admin cấu hình, mặc định 7 ngày). Tạo transaction. `GetPacket_ByCustomerId` trả đủ 3 field ngày.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `OrderController.php`, `tests/Feature/LegacyPacketTest.php`
+- **Next:** —
+- **Notes:** Gói thường vẫn `pay=0` chờ admin `active_order_1`.
 
 ### 2026-08-27 — Review tối ưu toàn hệ thống
 

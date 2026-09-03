@@ -134,6 +134,42 @@ class LegacyPacketTest extends TestCase
         $this->assertIsArray($customers['list'][0]['devices']);
     }
 
+    public function test_buy_trial_auto_activates_with_dates(): void
+    {
+        $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();
+        $packet = Packet::query()->where('name_packet', 'Gói dùng thử')->first();
+
+        $buy = $this->post('/home/BuyPacket_ByIdCustomer_1', [
+            'packet_id' => $packet->packet_id,
+            'name_packet' => $packet->name_packet,
+            'price' => $packet->price,
+            'description' => $packet->description,
+            'detail' => $packet->detail,
+            'customer_id' => $customer->customer_id,
+            'is_trial' => '1',
+            'is_business' => '0',
+        ]);
+        $paidId = json_decode($buy->getContent(), true)['msg'];
+
+        $order = Order::query()->where('paid_id', $paidId)->first();
+        $this->assertSame('1', $order->pay);
+        $this->assertSame('2026-08-20', $order->register_date);
+        $this->assertSame('2026-08-20', $order->payment_date);
+        $this->assertSame('2026-08-20', $order->valid_date);
+        $this->assertSame('2026-08-27', $order->expire_date);
+
+        $mine = json_decode($this->get('/home/GetPacket_ByCustomerId/'.$customer->customer_id)->getContent(), true);
+        $trial = collect($mine['Packet_list'])->firstWhere('paid_id', $paidId);
+        $this->assertSame('2026-08-20', $trial['payment_date']);
+        $this->assertSame('2026-08-20', $trial['valid_date']);
+        $this->assertSame('2026-08-27', $trial['expire_date']);
+
+        $this->assertTrue(PacketQuota::canAddDevice($customer->customer_id));
+
+        $new = json_decode($this->get('/sysaccount/OrderNew')->getContent(), true);
+        $this->assertEmpty(collect($new['orderList'])->where('paid_id', $paidId));
+    }
+
     public function test_buy_six_month_uses_price_6_month(): void
     {
         $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();

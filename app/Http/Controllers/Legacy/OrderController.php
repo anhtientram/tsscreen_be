@@ -61,6 +61,9 @@ class OrderController extends Controller
             ->where('pay', '1')
             ->exists();
 
+        $isTrial = ($request->input('is_trial', $packet->is_trial ?: '0') === '1');
+        $registerDate = now()->format('Y-m-d');
+
         $order = Order::query()->create([
             'packet_id' => $packet->packet_id,
             'customer_id' => $customer->customer_id,
@@ -73,21 +76,43 @@ class OrderController extends Controller
             'month_qty' => $packet->month_qty,
             'year_qty' => $packet->year_qty,
             'pay_month' => $payMonth,
-            'is_trial' => $request->input('is_trial', $packet->is_trial ?: '0'),
+            'is_trial' => $isTrial ? '1' : '0',
             'is_business' => $request->input('is_business', $packet->is_business ?: '0'),
             'detail' => $request->input('detail', $packet->detail),
             'description' => $request->input('description', $packet->description),
             'picture' => $packet->picture,
             'pay' => '0',
             'type' => $isRenew ? 'renew' : 'new',
-            'register_date' => now()->format('Y-m-d'),
+            'register_date' => $registerDate,
             'limit_capacity' => $packet->limit_capacity,
             'limit_qty' => $packet->limit_qty,
             'deleted' => 'n',
         ]);
 
         $order->reg_number = 'DH'.$order->paid_id;
+
+        if ($isTrial) {
+            $order->pay = '1';
+            $order->payment_date = $registerDate;
+            $order->valid_date = $registerDate;
+            $order->expire_date = substr($order->computeExpireDate($registerDate, $packet), 0, 10);
+        }
+
         $order->save();
+
+        if ($isTrial) {
+            Transaction::query()->create([
+                'paid_id' => $order->paid_id,
+                'packet_id' => $order->packet_id,
+                'customer_id' => $order->customer_id,
+                'reg_number' => $order->reg_number,
+                'name_packet' => $order->name_packet,
+                'amount' => $order->price,
+                'payment_date' => $registerDate,
+                'ref_transaction_id' => '',
+                'created_date' => now(),
+            ]);
+        }
 
         return LegacyJson::send(['status' => 1, 'msg' => LegacyJson::str($order->paid_id)]);
     }

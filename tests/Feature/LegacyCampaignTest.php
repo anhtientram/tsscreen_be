@@ -264,4 +264,38 @@ class LegacyCampaignTest extends TestCase
             'payment_date' => '2026-08-20',
         ]);
     }
+
+    public function test_create_camp_without_customer_id_uses_id_dir(): void
+    {
+        $customer = Customer::query()->where('email', 'customer@tsscreen.local')->first();
+        $this->activateBasic($customer);
+
+        $idDir = json_decode($this->post('/home/CreateDir', [
+            'name_dir' => 'Lobby',
+            'customer_id' => $customer->customer_id,
+            'type_dir' => 'g',
+        ])->getContent(), true)['msg'];
+
+        $create = $this->post('/home/CreateCamp', [
+            'campaign_name' => 'QC tối',
+            'status' => '1',
+            'from_date' => '2026-09-01',
+            'to_date' => '2026-09-30',
+            'days_of_week' => 'T2,T3,T4,T5,T6,T7,CN',
+            'video_type' => 'url',
+            'url_youtobe' => 'https://example.com/night.mp4',
+            'customer_id' => '',
+            'id_dir' => $idDir,
+            'id_computer' => '0',
+            'approved_yn' => '1',
+            'default_yn' => '1',
+        ]);
+
+        $created = json_decode($create->getContent(), true);
+        $this->assertSame(1, $created['status']);
+
+        $camp = Campaign::query()->find($created['msg']);
+        $this->assertNotNull($camp);
+        $this->assertSame((string) $customer->customer_id, (string) $camp->customer_id);
+    }
 }

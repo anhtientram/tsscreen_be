@@ -57,6 +57,16 @@ return [
             'report' => false,
         ],
 
+        'releases' => [
+            'driver' => 'local',
+            // Cùng volume uploads trên hosting (Wasmer: /data/uploads/apk). Local: public/uploads/apk.
+            'root' => rtrim(env('UPLOADS_ROOT') ?: public_path(), '/').'/uploads/apk',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/apk',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -61,7 +61,7 @@ class VietQrController extends Controller
             return response('Không tìm thấy đơn hàng', 404);
         }
 
-        $amount = e($order->price);
+        $amount = e(LegacyJson::money($order->price));
         $reg = e($order->reg_number ?: 'DH'.$order->paid_id);
         $name = e($order->name_packet);
 

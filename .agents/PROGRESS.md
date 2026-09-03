@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** Gói dùng thử auto-active + payment/valid/expire_date
+- **Last completed:** CreateCamp resolve customer từ id_dir khi customer_id rỗng
 - **Blocked:** —
 
 ## Phase checklist
@@ -34,6 +34,78 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-09-03 — CreateCamp resolve customer từ id_dir khi customer_id rỗng
+
+- **Done:** Phone gửi `CreateCamp` với `customer_id` rỗng + `id_dir=1` → `status -2 Không tìm thấy khách hàng`. Endpoint đã có Phase 4 nhưng chỉ check `customer_id`. Thêm `LegacyCustomerResolver`: fallback `customer_token`/`name_dir`, `email`, `computer_id`/`id_computer`, `id_dir` → owner dir.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `LegacyCustomerResolver.php`, `CampaignController.php`, tests
+- **Next:** Deploy hosting; thử tạo camp + AddTimeRun_ByCamp
+- **Notes:** Request Flutter log khớp: `customer_id` rỗng, `id_dir: 1`, `id_computer: 0`.
+
+### 2026-09-03 — Upload APK qua POST form (bỏ Livewire FileUpload)
+
+- **Done:** Lỗi `The data.tvbox_apk.{uuid} failed to upload` vẫn còn trên Wasmer — Livewire temp upload không ổn với APK lớn. Thay Filament FileUpload bằng form POST `POST /admin/apk/upload` (auth admin), lưu trực tiếp qua PHP `UploadedFile`, tự cập nhật `APPTVBOX_UPDATE_URL`.
+- **Pipeline:** phân tích 3 app / DB không đổi / tối ưu hosting / dev / test
+- **Files:** `TvBoxApkUploadController.php`, `tvbox-apk-upload.blade.php`, `AppConfigForm.php`, `ManageAppConfig.php`, `routes/web.php`, tests
+- **Next:** Deploy; chọn file → bấm **Upload APK** (nút riêng, không cần Lưu cấu hình)
+- **Notes:** Giới hạn 110MB khớp `public/.user.ini`. Lưu cấu hình chỉ dùng cho các field config khác.
+
+### 2026-09-03 — Fix FileUpload loading vô hạn khi đã có APK trên server
+
+- **Done:** Mở trang config thấy `tvbox.apk` + "Waiting for size" / Loading mãi dù chưa chọn file — FilePond cố `fetch()` cả APK cũ (80MB+) để hiển thị. Fix: không pre-fill `tvbox_apk`; hiện APK đang host qua Placeholder + link tải; FileUpload chỉ dùng upload mới.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `AppConfigForm.php`, `ManageAppConfig.php`, `TvBoxApkStorage.php`, `FilamentAdminTest.php`
+- **Next:** Deploy; refresh `/admin/config` — ô upload trống, APK cũ hiện ở dòng "APK đang host"
+- **Notes:** Nguyên nhân là Filament FileUpload + FilePond không phù hợp hiển thị file lớn đã có sẵn.
+
+### 2026-09-03 — Fix loading vô hạn khi upload APK TV Box
+
+- **Done:** Spinner loading mãi sau khi chọn APK — Filament copy file sang volume ngay lập tức (80MB+) trong cùng request Livewire. Fix: `storeFiles(false)` (chỉ upload tạm, copy khi bấm Lưu), `previewable(false)`, temp disk `uploads` cùng volume Wasmer. `TvBoxApkStorage::storeTemporary()` copy cross-filesystem.
+- **Pipeline:** phân tích 3 app / DB không đổi / tối ưu UX upload / dev / test
+- **Files:** `AppConfigForm.php`, `ManageAppConfig.php`, `TvBoxApkStorage.php`, `config/livewire.php`, `AppServiceProvider.php`
+- **Next:** Deploy; chọn APK → đợi upload xong → bấm **Lưu cấu hình**
+- **Notes:** Upload tạm có thể mất 1–2 phút với APK lớn; sau đó phải bấm Lưu mới ghi vào `/data/uploads/apk/tvbox.apk`.
+
+### 2026-09-03 — Sửa upload APK TV Box (Livewire 100MB + volume Wasmer)
+
+- **Done:** Fix lỗi `The data.tvbox_apk.{uuid} failed to upload`. Tăng giới hạn Livewire temp upload lên 100MB (`config/livewire.php`). Bỏ `acceptedFileTypes` + `fetchFileInformation(false)` tránh reject MIME `.apk`. Lưu file vào `{UPLOADS_ROOT}/uploads/apk/tvbox.apk` (Wasmer volume `/data/uploads/apk/`), route `GET /apk/tvbox.apk` không đổi.
+- **Pipeline:** phân tích 3 app / DB không đổi / tối ưu hosting volume / dev / test
+- **Files:** `config/livewire.php`, `config/filesystems.php`, `AppConfigForm.php`, `TvBoxApkStorage.php`, `AppServiceProvider.php`, `.gitignore`, tests
+- **Next:** Deploy lên hosting; thử upload APK thật trong `/admin/config`
+- **Notes:** Hosting đã có `upload_max_filesize=110M`, `post_max_size=120M` trong `public/.user.ini`. APK > 12MB trước đó bị Livewire mặc định chặn.
+
+### 2026-09-03 — Upload APK TV Box trong cấu hình admin
+
+- **Done:** `/admin/config` → App TV Box: upload file `.apk` thay URL tay. Lưu `public/apk/tvbox.apk`, tự gán `APPTVBOX_UPDATE_URL` = `{API_SERVER}/apk/tvbox.apk`. Route `GET /apk/tvbox.apk` (MIME APK). Disk `releases`.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `TvBoxApkStorage.php`, `AppConfigForm.php`, `ManageAppConfig.php`, `config/filesystems.php`, `routes/web.php`, tests
+- **Next:** —
+- **Notes:** Upload mới ghi đè `tvbox.apk`. TV đọc link qua config6789.
+
+### 2026-09-03 — Format tiền VN 20.000 toàn hệ thống
+
+- **Done:** `LegacyJson::money()` / `parseMoney()` — hiển thị `20.000`, DB vẫn lưu `20000`. API: `Packet_list`, `Packet_list` đơn, `transaction_list`, admin order list. Input mua/tạo gói parse ngược. Filament bảng/infolist/form qua `MoneyFormat`. Trang VietQR HTML hiển thị có dấu chấm.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `LegacyJson.php`, `MoneyFormat.php`, models, controllers, Filament, `tests/Unit/LegacyJsonTest.php`
+- **Next:** —
+- **Notes:** App gửi `99.000` hoặc `99000` đều OK nhờ `parseMoney`.
+
+### 2026-09-03 — Filament config6789 + UI chi tiết + dashboard
+
+- **Done:** Trang `/admin/config` sửa toàn bộ key `config6789.php` (công ty, API_SERVER, app version 3 app, VietQR). Lưu qua `AppConfig::putMany` — app đọc ngay, không cache. Infolist xem chi tiết: Section + badge + tiếng Việt (đơn, khách, gói, TV, GD, admin). Dashboard stats: màu Indigo/Emerald/Rose, icon, mini chart 7 ngày. View đơn có nút Kích hoạt.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `ManageAppConfig.php`, `AppConfigForm.php`, infolists, `StatsOverview.php`, `AdminPanelProvider.php`, `FilamentAdminTest.php`
+- **Next:** —
+- **Notes:** Nút "Xem config6789" mở JSON live.
+
+### 2026-09-03 — Filament admin panel `/admin`
+
+- **Done:** Cài Filament 4. Auth `tb_accounts` guard `admin` (login username + MD5 như API cũ). Resources: **Đơn hàng** (tab chờ/active/hết hạn + action Kích hoạt qua `OrderActivationService`), **Gói cước** CRUD, **Khách hàng** (bật/tắt), **Giao dịch**, **TV**, **Tài khoản admin**. Dashboard stats widget. Query Eloquent trực tiếp (không HTTP loop API). Legacy `/sysaccount/*` giữ nguyên; service kích hoạt dùng chung.
+- **Pipeline:** phân tích 3 app / DB không đổi / query trực tiếp / dev / test
+- **Files:** `composer.json`, `config/auth.php`, `app/Models/Account.php`, `app/Services/OrderActivationService.php`, `app/Filament/**`, `app/Providers/Filament/AdminPanelProvider.php`, `tests/Feature/FilamentAdminTest.php`
+- **Next:** Mở `{APP_URL}/admin` — login `admin` / `admin123`
+- **Notes:** App admin APK vẫn dùng `/sysaccount`. Filament là panel web bổ sung.
 
 ### 2026-09-03 — Gói dùng thử auto-active + ngày hạn
 

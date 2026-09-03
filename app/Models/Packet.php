@@ -24,9 +24,9 @@ class Packet extends Model
         return [
             'packet_id' => LegacyJson::str($this->packet_id),
             'name_packet' => LegacyJson::str($this->name_packet),
-            'price' => LegacyJson::str($this->price),
-            'price_6_month' => LegacyJson::str($this->price_6_month),
-            'price_12_month' => LegacyJson::str($this->price_12_month),
+            'price' => LegacyJson::money($this->price),
+            'price_6_month' => LegacyJson::money($this->price_6_month),
+            'price_12_month' => LegacyJson::money($this->price_12_month),
             'day_qty' => LegacyJson::str($this->day_qty ?: '0'),
             'month_qty' => LegacyJson::str($this->month_qty ?: '0'),
             'year_qty' => LegacyJson::str($this->year_qty ?: '0'),
@@ -46,9 +46,9 @@ class Packet extends Model
         $packet ??= new self;
         $packet->fill([
             'name_packet' => $request->input('name_packet', $packet->name_packet),
-            'price' => $request->input('price', $packet->price),
-            'price_6_month' => $request->input('price_6_month', $packet->price_6_month),
-            'price_12_month' => $request->input('price_12_month', $packet->price_12_month),
+            'price' => LegacyJson::parseMoney($request->input('price', $packet->price)),
+            'price_6_month' => LegacyJson::parseMoney($request->input('price_6_month', $packet->price_6_month)),
+            'price_12_month' => LegacyJson::parseMoney($request->input('price_12_month', $packet->price_12_month)),
             'month_qty' => $request->input('month_qty', $packet->month_qty ?: '0'),
             'day_qty' => $request->input('day_qty', $packet->day_qty ?: '0'),
             'year_qty' => $request->input('year_qty', $packet->year_qty ?: '0'),

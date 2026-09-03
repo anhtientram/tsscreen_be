@@ -59,4 +59,30 @@ final class LegacyJson
 
         return (string) $value;
     }
+
+    /** VNĐ hiển thị: 20000 → 20.000 */
+    public static function money(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $raw = self::parseMoney($value);
+
+        if ($raw === '') {
+            return self::str($value);
+        }
+
+        return number_format((int) $raw, 0, ',', '.');
+    }
+
+    /** Chuẩn hóa input tiền về chuỗi số (bỏ dấu . ,) để lưu DB / tính toán. */
+    public static function parseMoney(mixed $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return preg_replace('/\D+/', '', (string) $value) ?? '';
+    }
 }

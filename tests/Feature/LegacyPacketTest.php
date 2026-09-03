@@ -38,6 +38,7 @@ class LegacyPacketTest extends TestCase
         $this->assertNotEmpty($body['Packet_list']);
         $this->assertIsString($body['Packet_list'][0]['packet_id']);
         $this->assertIsString($body['Packet_list'][0]['detail']);
+        $this->assertSame('99.000', collect($body['Packet_list'])->firstWhere('name_packet', 'Gói cơ bản')['price']);
 
         $create = $this->post('/home/CreatePacket', [
             'name_packet' => 'Gói test',

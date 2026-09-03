@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\LegacyJson;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -38,6 +39,16 @@ class Customer extends Model
                 $customer->customer_token = Str::lower(Str::ulid()->toBase32());
             }
         });
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class, 'customer_id', 'customer_id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'customer_id', 'customer_id');
     }
 
     public function setPasswordAttribute(string $value): void

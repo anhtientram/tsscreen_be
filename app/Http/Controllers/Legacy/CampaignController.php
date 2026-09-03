@@ -9,6 +9,7 @@ use App\Models\CampaignTimeRun;
 use App\Models\Customer;
 use App\Models\Device;
 use App\OpenApi\AppTags;
+use App\Support\LegacyCustomerResolver;
 use App\Support\LegacyJson;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -19,10 +20,12 @@ class CampaignController extends Controller
     #[OA\Post(path: '/home/CreateCamp', summary: 'Phone tạo camp. id_computer = video riêng 1 TV; chỉ id_dir = cả hệ thống', tags: [AppTags::CUSTOMER], responses: [new OA\Response(response: 200, description: 'legacy JSON')])]
     public function create(Request $request)
     {
-        $customerId = $request->input('customer_id');
-        if (! Customer::query()->where('customer_id', $customerId)->exists()) {
+        $customer = LegacyCustomerResolver::resolve($request);
+        if (! $customer || ! $customer->isActive()) {
             return LegacyJson::send(['status' => -2, 'msg' => 'Không tìm thấy khách hàng']);
         }
+
+        $request->merge(['customer_id' => $customer->customer_id]);
 
         try {
             $camp = Campaign::query()->create($this->attrsFromRequest($request, [

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Support\LegacyJson;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
 
-class Account extends Model
+class Account extends Authenticatable implements FilamentUser, HasName
 {
     protected $table = 'tb_accounts';
 
@@ -17,6 +20,11 @@ class Account extends Model
     const UPDATED_AT = 'last_MDF_date';
 
     protected $guarded = [];
+
+    protected $hidden = [
+        'password',
+        'fcm_token',
+    ];
 
     protected function casts(): array
     {
@@ -40,6 +48,16 @@ class Account extends Model
     public function passwordMatches(string $submittedMd5): bool
     {
         return Hash::check($submittedMd5, $this->password);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->deleted !== 'y';
+    }
+
+    public function getFilamentName(): string
+    {
+        return (string) ($this->username ?: $this->email ?: 'Admin');
     }
 
     public function toLegacyArray(): array

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Legacy;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Packet;
-use App\Models\Transaction;
 use App\OpenApi\AppTags;
+use App\Services\OrderActivationService;
 use App\Support\LegacyJson;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -14,6 +13,7 @@ use OpenApi\Attributes as OA;
 
 class SysAccountOrderController extends Controller
 {
+    public function __construct(private readonly OrderActivationService $activation) {}
     #[OA\Get(path: '/sysaccount/OrderNew', summary: 'Đơn chờ kích hoạt (pay=0)', tags: [AppTags::ADMIN], responses: [new OA\Response(response: 200, description: '{orderList}')])]
     public function newOrders()
     {
@@ -127,33 +127,9 @@ class SysAccountOrderController extends Controller
             ?: $this->filled($request, 'valid_date')
             ?: now()->format('Y-m-d');
         $paymentDate = $this->filled($request, 'payment_date') ?: now()->format('Y-m-d');
+        $packetId = $this->filled($request, 'packet_id');
 
-        if ($packetId = $this->filled($request, 'packet_id')) {
-            $order->packet_id = $packetId;
-            $packet = Packet::query()->where('packet_id', $packetId)->first();
-            if ($packet) {
-                $order->setRelation('packet', $packet);
-            }
-        }
-
-        $order->pay = '1';
-        $order->valid_date = $validDate;
-        $order->payment_date = $paymentDate;
-        $order->expire_date = substr($order->computeExpireDate($validDate), 0, 10);
-        $order->deleted = 'n';
-        $order->save();
-
-        Transaction::query()->create([
-            'paid_id' => $order->paid_id,
-            'packet_id' => $order->packet_id,
-            'customer_id' => $order->customer_id,
-            'reg_number' => $order->reg_number,
-            'name_packet' => $order->name_packet,
-            'amount' => $order->price,
-            'payment_date' => $paymentDate,
-            'ref_transaction_id' => '',
-            'created_date' => now(),
-        ]);
+        $this->activation->activate($order, $validDate, $paymentDate, $packetId);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }

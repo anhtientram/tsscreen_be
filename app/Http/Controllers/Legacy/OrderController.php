@@ -48,12 +48,12 @@ class OrderController extends Controller
         }
 
         $payMonth = $request->input('pay_month');
-        $price = $request->input('price') ?: $packet->price;
+        $price = LegacyJson::parseMoney($request->input('price') ?: $packet->price);
         if ((int) $payMonth === 6) {
-            $price = $packet->price_6_month ?: $price;
+            $price = LegacyJson::parseMoney($packet->price_6_month ?: $price);
         }
         if ((int) $payMonth === 12) {
-            $price = $packet->price_12_month ?: $price;
+            $price = LegacyJson::parseMoney($packet->price_12_month ?: $price);
         }
 
         $isRenew = Order::query()
@@ -184,7 +184,7 @@ class OrderController extends Controller
                 'packet_id' => LegacyJson::str($t->packet_id),
                 'customer_id' => LegacyJson::str($t->customer_id),
                 'payment_date' => LegacyJson::str($t->payment_date),
-                'amount' => LegacyJson::str($t->amount),
+                'amount' => LegacyJson::money($t->amount),
                 'ref_transaction_id' => LegacyJson::str($t->ref_transaction_id),
                 'name_packet' => LegacyJson::str($t->name_packet),
             ])

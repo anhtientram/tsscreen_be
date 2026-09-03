@@ -275,7 +275,8 @@ class HomeAuthController extends Controller
     )]
     public function getByEmail(string $email)
     {
-        $customer = Customer::query()->where('email', $email)->first();
+        //tìm kiếm thêm sđt
+        $customer = Customer::query()->where('email', $email)->orWhere('phone_number', $email)->first();
 
         return LegacyJson::send([
             'status' => 1,

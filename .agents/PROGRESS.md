@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** CreateCamp `id_computer` = video 1 TV
+- **Last completed:** Review tối ưu toàn hệ thống (~78%)
 - **Blocked:** —
 
 ## Phase checklist
@@ -34,6 +34,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-08-27 — Review tối ưu toàn hệ thống
+
+- **Done:** Rà Phase 0–7 + cổng 3. Kết luận: đủ cho hosting nhỏ–vừa; không thiếu chức năng. Đã tốt: PacketQuota, DiskWatermark + VOLUME_CAP, stream/chunk/2 upload, with() list Phone/TV, lịch TV 2 query, lệnh claim sync không rate-limit 30s, index lookup chính. Còn: GetListCustomer N+1 devices; run profile GROUP BY + prune; index `id_computer` và `(sn, done, sync)`; GetCampToday preload default; hostingDeny SUM cache; heartbeat 1 UPDATE.
+- **Pipeline:** phân tích 3 app (không đổi contract) / DB chưa đổi / tối ưu (audit) / — / —
+- **Files:** controllers Legacy, `PacketQuota`, `DiskWatermark`, migration `tb_*`, tests Feature
+- **Next:** Nếu làm tiếp: eager-load GetListCustomer → index → prune run profile/commands. Host 50GB giữ `UPLOADS_VOLUME_CAP` ~45GB.
+- **Notes:** Không cache `tb_configs`. Không FCM Laravel. Không rate-limit poll lệnh 10s. Cron Wasmer có thể không chạy — prune phải opportunistic.
 
 ### 2026-08-26 — CreateCamp id_computer = video riêng 1 TV
 

@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** CreateCamp resolve customer từ id_dir khi customer_id rỗng
+- **Last completed:** CreateCamp lưu default_yn=1 + camp mặc định dir
 - **Blocked:** —
 
 ## Phase checklist
@@ -34,6 +34,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-09-03 — CreateCamp lưu default_yn=1 + camp mặc định dir
+
+- **Done:** App Phone (Thiết lập giờ mặc định) gửi `default_yn: 1` nhưng sau tạo không lấy lại được — app lọc `defaultYn == '1'` từ `Getcamp_ByDirId`. Fix: chuẩn hóa flag `1/true/'1'`, khi `default_yn=1` gọi `syncDefaultCamp()` (bỏ default cũ cùng dir), update giữ flag cũ nếu field rỗng. `UpdateDefaultCamp_ById` vẫn hoạt động.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `CampaignController.php`, `LegacyCampaignTest.php`
+- **Next:** Deploy; tạo giờ mặc định dir → mở lại phải thấy camp + khung giờ
+- **Notes:** Flutter sau CreateCamp còn gọi GET `UpdateDefaultCamp_ById` — backend CreateCamp giờ đã gán `default_yn` luôn.
 
 ### 2026-09-03 — CreateCamp resolve customer từ id_dir khi customer_id rỗng
 

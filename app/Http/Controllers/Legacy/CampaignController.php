@@ -31,6 +31,7 @@ class CampaignController extends Controller
             $camp = Campaign::query()->create($this->attrsFromRequest($request, [
                 'deleted' => 'n',
             ]));
+            $this->syncDefaultCamp($camp);
         } catch (\Throwable $e) {
             report($e);
 
@@ -48,7 +49,9 @@ class CampaignController extends Controller
             return LegacyJson::send(['status' => -2, 'msg' => 'Không tìm thấy chiến dịch']);
         }
 
-        $camp->fill($this->attrsFromRequest($request))->save();
+        $camp->fill($this->attrsFromRequest($request, existing: $camp));
+        $camp->save();
+        $this->syncDefaultCamp($camp);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -284,11 +287,9 @@ class CampaignController extends Controller
             return LegacyJson::send(['status' => -2, 'msg' => 'Không tìm thấy chiến dịch']);
         }
 
-        if ($camp->id_dir) {
-            Campaign::alive()->where('id_dir', $camp->id_dir)->update(['default_yn' => '0']);
-        }
         $camp->default_yn = '1';
         $camp->save();
+        $this->syncDefaultCamp($camp);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -411,7 +412,7 @@ class CampaignController extends Controller
         return LegacyJson::send(['Camp_list' => $list]);
     }
 
-    private function attrsFromRequest(Request $request, array $extra = []): array
+    private function attrsFromRequest(Request $request, array $extra = [], ?Campaign $existing = null): array
     {
         $url = $request->input('url_youtobe') ?: $request->input('url_yotobe');
         $idDir = $request->input('id_dir');
@@ -434,10 +435,27 @@ class CampaignController extends Controller
             'id_dir' => ($idDir === '' || $idDir === null) ? null : $idDir,
             'id_computer' => $targetComputer !== null ? LegacyJson::str($targetComputer) : '',
             'video_duration' => $request->input('video_duration') ?: '',
-            'approved_yn' => $this->flag($request, 'approved_yn'),
-            'default_yn' => $this->flag($request, 'default_yn'),
-            'run_by_default_yn' => $this->flag($request, 'run_by_default_yn'),
+            'approved_yn' => $this->resolveFlag($request, 'approved_yn', $existing?->approved_yn ?? '0'),
+            'default_yn' => $this->resolveFlag($request, 'default_yn', $existing?->default_yn ?? '0'),
+            'run_by_default_yn' => $this->resolveFlag($request, 'run_by_default_yn', $existing?->run_by_default_yn ?? '0'),
         ], $extra);
+    }
+
+    private function syncDefaultCamp(Campaign $camp): void
+    {
+        if ((string) $camp->default_yn !== '1' || ! $camp->id_dir) {
+            return;
+        }
+
+        Campaign::alive()
+            ->where('id_dir', $camp->id_dir)
+            ->where('campaign_id', '!=', $camp->campaign_id)
+            ->update(['default_yn' => '0']);
+
+        if ((string) $camp->default_yn !== '1') {
+            $camp->default_yn = '1';
+            $camp->save();
+        }
     }
 
     private function targetComputerId(Request $request): mixed
@@ -537,15 +555,36 @@ class CampaignController extends Controller
         return false;
     }
 
-    private function flag(Request $request, string $key, string $default = '0'): string
+    private function resolveFlag(Request $request, string $key, string $fallback = '0'): string
     {
-        $value = $request->input($key, $default);
+        if (! $request->has($key)) {
+            return $this->normalizeFlag($fallback);
+        }
 
+        $value = $request->input($key);
         if ($value === null || $value === '') {
-            return $default;
+            return $this->normalizeFlag($fallback);
+        }
+
+        return $this->normalizeFlag($value);
+    }
+
+    private function normalizeFlag(mixed $value): string
+    {
+        if ($value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'y' || $value === 'yes') {
+            return '1';
+        }
+
+        if ($value === false || $value === 0 || $value === '0' || $value === 'false' || $value === 'n' || $value === 'no') {
+            return '0';
         }
 
         return LegacyJson::str($value);
+    }
+
+    private function flag(Request $request, string $key, string $default = '0'): string
+    {
+        return $this->resolveFlag($request, $key, $default);
     }
 
     private function scheduleRow(Campaign $camp, ?string $fromTime, ?string $toTime): array

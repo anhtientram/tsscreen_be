@@ -297,5 +297,18 @@ class LegacyCampaignTest extends TestCase
         $camp = Campaign::query()->find($created['msg']);
         $this->assertNotNull($camp);
         $this->assertSame((string) $customer->customer_id, (string) $camp->customer_id);
+        $this->assertSame('1', $camp->default_yn);
+
+        $byDir = json_decode($this->get('/home/Getcamp_ByDirId/'.$idDir.'/all')->getContent(), true);
+        $this->assertSame('1', $byDir['Camp_list'][0]['default_yn']);
+
+        $this->post('/home/AddTimeRun_ByCamp', [
+            'campaign_id' => $created['msg'],
+            'from_time' => '08:00:00',
+            'to_time' => '18:00:00',
+        ]);
+
+        $defaultTimes = json_decode($this->get('/home/GetDefaultTimeRun_ByIdDir/'.$idDir)->getContent(), true);
+        $this->assertCount(1, $defaultTimes['camp_list_time']);
     }
 }

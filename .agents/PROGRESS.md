@@ -5,7 +5,7 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 ## Status
 
 - **Current phase:** —
-- **Last completed:** CreateCamp lưu default_yn=1 + camp mặc định dir
+- **Last completed:** Cho phép nhiều camp default_yn=1 cùng dir
 - **Blocked:** —
 
 ## Phase checklist
@@ -34,6 +34,14 @@ Cập nhật **ngay** khi xong một việc (endpoint, migration, phase, docs). 
 - **Không làm:** FCM notify in-app; FCM lệnh từ Laravel; Firebase Realtime.
 
 ## Log
+
+### 2026-09-03 — Cho phép nhiều camp default_yn=1 cùng dir (giờ mặc định)
+
+- **Done:** Thêm khung giờ mặc định thứ 2 → camp cũ bị `default_yn=0`. Nguyên nhân: `syncDefaultCamp()` (fix trước) + `UpdateDefaultCamp_ById` xóa default cũ — app Phone (Thiết lập giờ mặc định) cần **nhiều** camp `default_yn=1` / dir. Đã bỏ logic clear default cũ; chỉ gán `default_yn` theo request.
+- **Pipeline:** phân tích 3 app / DB không đổi / — / dev / test
+- **Files:** `CampaignController.php`, `LegacyCampaignTest.php`
+- **Next:** Deploy; thêm 2+ khung giờ mặc định — cả hai giữ `default_yn=1`
+- **Notes:** `GetDefaultTimeRun_ByIdDir` vẫn trả time run của 1 camp default đầu tiên (legacy).
 
 ### 2026-09-03 — CreateCamp lưu default_yn=1 + camp mặc định dir
 

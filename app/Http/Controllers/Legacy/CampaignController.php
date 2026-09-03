@@ -31,7 +31,6 @@ class CampaignController extends Controller
             $camp = Campaign::query()->create($this->attrsFromRequest($request, [
                 'deleted' => 'n',
             ]));
-            $this->syncDefaultCamp($camp);
         } catch (\Throwable $e) {
             report($e);
 
@@ -51,7 +50,6 @@ class CampaignController extends Controller
 
         $camp->fill($this->attrsFromRequest($request, existing: $camp));
         $camp->save();
-        $this->syncDefaultCamp($camp);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -289,7 +287,6 @@ class CampaignController extends Controller
 
         $camp->default_yn = '1';
         $camp->save();
-        $this->syncDefaultCamp($camp);
 
         return LegacyJson::send(['status' => 1, 'msg' => 'OK']);
     }
@@ -439,23 +436,6 @@ class CampaignController extends Controller
             'default_yn' => $this->resolveFlag($request, 'default_yn', $existing?->default_yn ?? '0'),
             'run_by_default_yn' => $this->resolveFlag($request, 'run_by_default_yn', $existing?->run_by_default_yn ?? '0'),
         ], $extra);
-    }
-
-    private function syncDefaultCamp(Campaign $camp): void
-    {
-        if ((string) $camp->default_yn !== '1' || ! $camp->id_dir) {
-            return;
-        }
-
-        Campaign::alive()
-            ->where('id_dir', $camp->id_dir)
-            ->where('campaign_id', '!=', $camp->campaign_id)
-            ->update(['default_yn' => '0']);
-
-        if ((string) $camp->default_yn !== '1') {
-            $camp->default_yn = '1';
-            $camp->save();
-        }
     }
 
     private function targetComputerId(Request $request): mixed
